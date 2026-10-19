@@ -1,0 +1,45 @@
+{
+  "name": "tangerine-clone",
+  "version": "0.1.0",
+  "description": "Local-first file converter, compressor and toolkit for Windows, inspired by Tangerine for Mac",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "lint": "echo ok"
+  },
+  "author": "Tangerine for Windows contributors",
+  "license": "MIT",
+  "build": {
+    "appId": "com.tangerine.clone",
+    "productName": "Tangerine",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^25.0.0"
+  }
+}

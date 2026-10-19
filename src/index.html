@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; media-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self';">
+  <title>Tangerine</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="titlebar" id="titlebar">
+      <div class="traffic" aria-hidden="false">
+        <button class="traffic-btn close" data-win="close" aria-label="Close" title="Close"><span></span></button>
+        <button class="traffic-btn min" data-win="min" aria-label="Minimize" title="Minimize"><span></span></button>
+        <button class="traffic-btn max" data-win="max" aria-label="Maximize" title="Maximize"><span></span></button>
+      </div>
+      <div class="brand">
+        <img class="brand-mark" src="../assets/brand.svg" alt="" draggable="false">
+        <span class="brand-name">Tangerine</span>
+        <span class="brand-tag">for Windows</span>
+      </div>
+      <nav class="app-tabs" id="appTabs" aria-label="Views">
+        <button class="app-tab active" data-view="shelf">Shelf</button>
+        <button class="app-tab" data-view="formats">Formats</button>
+        <button class="app-tab" data-view="tools">Tools</button>
+      </nav>
+      <div class="title-actions">
+        <button class="engine-pill" id="enginePill" title="Engine setup">
+          <span class="status-dot" id="engineDot"></span>
+          <span id="enginePillText">Engines</span>
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="Settings (Ctrl+,)">
+          <span data-icon="settings"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="main-card" id="mainCard">
+        <!-- SHELF -->
+        <div class="view view-shelf" id="view-shelf">
+          <div class="shelf-empty" id="shelfEmpty">
+            <section class="hero">
+              <div class="hero-copy">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> LOCAL-FIRST · NO UPLOADS</div>
+                <h1>Drop a file.<br><span class="script hero-script">pick a format.<svg class="scribble" viewBox="0 0 240 16" preserveAspectRatio="none" aria-hidden="true"><path d="M3 11C56 4 138 3 237 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
+                <p class="hero-text">Convert, compress, split and transform anything — right here on your PC. No accounts, no queues, no cloud.</p>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" id="chooseFilesBtn"><span data-icon="plus"></span> Choose files</button>
+                  <button class="btn btn-ghost" data-go-tools>Browse tools <span data-icon="arrowRight"></span></button>
+                </div>
+                <div class="hero-hint"><span class="keycap">Shift</span> while dropping opens the format wheel</div>
+              </div>
+              <div class="hero-art">
+                <div class="hero-art-frame">
+                  <img src="../assets/tree-sky.jpg" alt="A tree against a bright sky" draggable="false">
+                  <div class="hero-glass glass-pill"><span class="tiny-dot"></span> Nothing leaves this PC</div>
+                  <div class="hero-format-card">
+                    <img src="../assets/brand.svg" alt="" class="mini-mark">
+                    <div><strong id="heroFormatCount">336</strong><span>format swaps</span></div>
+                  </div>
+                  <div class="art-note">a whole lotta<br>formats <span class="art-arrow">↗</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="shelf-section">
+              <div class="section-head">
+                <div>
+                  <h2>Start anywhere</h2>
+                  <p>Nine families. One very calm shelf.</p>
+                </div>
+                <button class="link-btn" data-go-formats>See all formats <span data-icon="arrowRight"></span></button>
+              </div>
+              <div class="category-grid" id="categoryGrid"></div>
+            </section>
+
+            <section class="workflow-strip">
+              <div class="workflow-step"><span class="step-num">01</span><div><strong>Drop a file</strong><span>Or choose one above.</span></div></div>
+              <span class="workflow-arrow">→</span>
+              <div class="workflow-step"><span class="step-num">02</span><div><strong>Hold a key</strong><span>Shift, Ctrl or Alt.</span></div></div>
+              <span class="workflow-arrow">→</span>
+              <div class="workflow-step"><span class="step-num">03</span><div><strong>Let go</strong><span>The wheel does the rest.</span></div></div>
+              <span class="workflow-badge"><span data-icon="lock"></span> 100% offline</span>
+            </section>
+          </div>
+
+          <div class="shelf-queue" id="shelfQueue" hidden>
+            <div class="queue-head">
+              <div>
+                <div class="eyebrow">THE SHELF</div>
+                <h1 class="queue-title"><span id="queueCount">0 files</span><span class="queue-size" id="queueSize">0 B</span></h1>
+              </div>
+              <div class="queue-actions">
+                <button class="btn btn-ghost btn-sm" id="addFilesBtn"><span data-icon="plus"></span> Add files</button>
+                <button class="btn btn-quiet btn-sm" id="clearBtn">Clear</button>
+                <button class="btn btn-primary btn-sm" id="convertAllBtn">Convert all <span data-icon="arrowRight"></span></button>
+              </div>
+            </div>
+            <div class="drop-strip" id="dropStrip">
+              <span class="drop-strip-icon" data-icon="download"></span>
+              <span>Drop more files here, or hold <span class="keycap sm">Shift</span> for the format wheel</span>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+
+        <!-- FORMATS -->
+        <div class="view view-formats" id="view-formats" hidden>
+          <div class="view-head">
+            <div class="eyebrow">FORMATS</div>
+            <div class="view-title-line">
+              <h1>Every swap,<br><span class="script">one shelf.</span></h1>
+              <div class="big-count"><strong id="formatCount">336</strong><span>conversions</span></div>
+            </div>
+            <p class="view-lede">Pick an output, then pick a file. Nothing is uploaded, ever.</p>
+          </div>
+          <div class="formats-toolbar">
+            <label class="search-field">
+              <span data-icon="search"></span>
+              <input id="formatSearch" type="text" placeholder="Search JPG, PDF, MP4…" autocomplete="off" spellcheck="false">
+            </label>
+            <div class="filter-tabs" id="formatFilters"></div>
+          </div>
+          <div class="format-list" id="formatList"></div>
+          <div class="import-note" id="importNote"></div>
+        </div>
+
+        <!-- TOOLS -->
+        <div class="view view-tools" id="view-tools" hidden>
+          <div class="view-head">
+            <div class="eyebrow">TOOLS</div>
+            <div class="view-title-line">
+              <h1>Little utilities.<br><span class="script">Big saves.</span></h1>
+              <div class="big-count"><strong id="toolCount">26</strong><span>focused tools</span></div>
+            </div>
+            <p class="view-lede">Trim, compress, redact, combine. Each one asks for only what it needs.</p>
+          </div>
+          <div class="filter-tabs tool-filters" id="toolFilters"></div>
+          <div class="tool-grid" id="toolGrid"></div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="side-card session-card">
+          <div class="side-head"><span>THIS SESSION</span><span class="live-dot" title="Local session"></span></div>
+          <div class="stats-grid">
+            <div class="stat"><strong id="statFiles">0</strong><span>on the shelf</span></div>
+            <div class="stat"><strong id="statDone">0</strong><span>converted</span></div>
+            <div class="stat"><strong id="statBytes">0 B</strong><span>processed</span></div>
+            <div class="stat"><strong>100%</strong><span>on this PC</span></div>
+          </div>
+        </section>
+
+        <section class="side-card keys-card">
+          <div class="side-head"><span>THE KEY MOVE</span><span class="side-script">hold, then drop</span></div>
+          <div class="key-row"><kbd>Shift</kbd><div><strong>Format wheel</strong><span>Pick an output</span></div></div>
+          <div class="key-row"><kbd>Ctrl</kbd><div><strong>Tool wheel</strong><span>Compress, crop, split…</span></div></div>
+          <div class="key-row"><kbd>Alt</kbd><div><strong>Actions wheel</strong><span>Share, float, move…</span></div></div>
+        </section>
+
+        <section class="side-card engines-card">
+          <div class="side-head"><span>ENGINES</span><button class="side-link" id="manageEngines">Manage</button></div>
+          <div class="engine-mini-list" id="engineList"></div>
+        </section>
+
+        <section class="side-card activity-card">
+          <div class="side-head"><span>ACTIVITY</span><span class="count-pill" id="activityCount">0</span></div>
+          <div class="activity-list" id="activityList">
+            <div class="activity-empty">Nothing yet. Your conversions will land here.</div>
+          </div>
+        </section>
+
+        <div class="side-foot">
+          <span><span data-icon="lock"></span> Everything runs locally</span>
+          <button id="aboutBtn">v0.1.0</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- WHEEL -->
+  <div class="wheel-layer" id="wheelLayer" hidden aria-hidden="true">
+    <div class="wheel-scrim" data-wheel-close></div>
+    <div class="wheel-shell" role="dialog" aria-modal="true" aria-label="Wheel chooser">
+      <div class="wheel-kicker"></div>
+      <h2 class="wheel-title">Choose a format</h2>
+      <div class="wheel-sub"></div>
+      <div class="wheel-tabs" hidden></div>
+      <div class="wheel-stage">
+        <div class="wheel-halo"></div>
+        <svg class="wheel-svg" viewBox="-140 -140 280 280" width="340" height="340" aria-hidden="true">
+          <defs>
+            <radialGradient id="petalFill" cx="34%" cy="18%" r="90%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
+              <stop offset="58%" stop-color="#ffffff" stop-opacity="0.82"/>
+              <stop offset="100%" stop-color="#ffeadc" stop-opacity="0.66"/>
+            </radialGradient>
+            <radialGradient id="petalActive" cx="38%" cy="20%" r="94%">
+              <stop offset="0%" stop-color="#ff9a68"/>
+              <stop offset="52%" stop-color="#ff6a30"/>
+              <stop offset="100%" stop-color="#f04a12"/>
+            </radialGradient>
+            <radialGradient id="wheelBackdrop" cx="50%" cy="42%" r="62%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.56"/>
+              <stop offset="76%" stop-color="#ffffff" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
+            </radialGradient>
+            <filter id="petalShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#3a2a20" flood-opacity="0.12"/>
+            </filter>
+            <filter id="backdropBlur" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="5"/>
+            </filter>
+          </defs>
+          <circle class="wheel-backdrop" r="127.4" fill="url(#wheelBackdrop)"/>
+          <circle class="wheel-rim" r="127.4" fill="none"/>
+          <g class="wheel-petals"></g>
+          <circle class="wheel-hub-ring" r="48.5" fill="rgba(255,255,255,.58)" stroke="rgba(255,255,255,.9)"/>
+        </svg>
+        <div class="wheel-center"></div>
+      </div>
+      <div class="wheel-detail"></div>
+      <div class="wheel-keys">
+        <span class="drag-key" data-wheel-key="convert"><kbd>Shift</kbd> Formats</span>
+        <span class="drag-key" data-wheel-key="tools"><kbd>Ctrl</kbd> Tools</span>
+        <span class="drag-key" data-wheel-key="actions"><kbd>Alt</kbd> Actions</span>
+      </div>
+      <div class="wheel-hint"><kbd>↑</kbd><kbd>↓</kbd> browse <span>·</span> <kbd>Enter</kbd> choose <span>·</span> <kbd>Esc</kbd> close</div>
+    </div>
+  </div>
+
+  <!-- SIMPLE DROP -->
+  <div class="drop-layer" id="dropLayer" hidden>
+    <div class="drop-panel">
+      <div class="drop-icon" data-icon="download"></div>
+      <div class="drop-title" id="dropTitle">Drop to add to the shelf</div>
+      <div class="drop-sub">Or hold a key to open a wheel</div>
+      <div class="drop-keys">
+        <span><kbd>Shift</kbd> Formats</span>
+        <span><kbd>Ctrl</kbd> Tools</span>
+        <span><kbd>Alt</kbd> Actions</span>
+      </div>
+    </div>
+    <div class="drag-ghost" id="dragGhost" hidden>
+      <span class="drag-ghost-icon" id="dragGhostIcon"></span>
+      <span class="drag-ghost-name" id="dragGhostName">Your file</span>
+    </div>
+  </div>
+
+  <div class="modal-root" id="modalRoot" hidden></div>
+  <div class="toast-root" id="toastRoot" aria-live="polite"></div>
+
+  <script src="icons.js"></script>
+  <script src="wheel.js"></script>
+  <script src="interactions.js"></script>
+  <script src="settings.js"></script>
+  <script src="toolmodal.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; media-src 'self' file:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'">
+  <title>Float — Tangerine</title>
+  <link rel="stylesheet" href="float.css">
+</head>
+<body>
+  <header class="float-bar">
+    <div class="float-brand">
+      <span class="float-mark"></span>
+      <span class="float-kicker">Float</span>
+      <strong id="floatName">Preview</strong>
+    </div>
+    <div class="float-tools">
+      <span class="float-pin" title="This window stays above other apps">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 4h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/><path d="M12 15v6"/></svg>
+        On top
+      </span>
+      <button class="float-close" id="closeBtn" type="button" title="Close preview" aria-label="Close preview">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="float-stage" id="stage">
+    <div class="float-loading"><span></span></div>
+  </main>
+  <footer class="float-foot">
+    <span class="float-meta" id="floatMeta">Loading…</span>
+    <span class="float-local" id="floatLocal">Local preview</span>
+  </footer>
+  <script src="icons.js"></script>
+  <script src="float.js"></script>
+</body>
+</html>
