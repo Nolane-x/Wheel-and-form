@@ -115,6 +115,15 @@
         </div>
       </div>
       <div class="settings-section">
+        <div class="switch-row">
+          <div>
+            <strong>Desktop wheel</strong>
+            <span>Hold Shift, Control or Alt while dragging a file anywhere on your desktop.</span>
+          </div>
+          <button class="switch ${s.desktopWheel ? 'on' : ''}" type="button" role="switch" aria-checked="${s.desktopWheel ? 'true' : 'false'}" data-toggle-desktop aria-label="Desktop wheel"></button>
+        </div>
+      </div>
+      <div class="settings-section">
         <h3 class="settings-title">Preferences file</h3>
         <p class="settings-sub">Your choices live in a small JSON file. Nothing is sent anywhere.</p>
         <button class="mini-action" type="button" data-open-settings-file>Open settings folder</button>
@@ -354,6 +363,12 @@
         renderPane();
         return;
       }
+      if (event.target.closest('[data-toggle-desktop]')) {
+        const next = !getSettings().desktopWheel;
+        await save({ desktopWheel: next });
+        renderPane();
+        return;
+      }
       const install = event.target.closest('[data-install-engine]');
       if (install) {
         await installEngine(install.dataset.installEngine);
@@ -390,6 +405,10 @@
     window.AppUI.openModal(modalMarkup());
     wire($('#modalRoot'));
     if (section === 'engines') refreshEngineStatus();
+  }
+
+  if (api.app && api.app.onOpenSettings) {
+    api.app.onOpenSettings(() => open('output'));
   }
 
   window.SettingsUI = {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, dialog, shell, nativeImage, clipboard, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, nativeImage, clipboard, Menu, Tray } = require('electron');
 const fs = require('fs');
 const fsp = fs.promises;
 const path = require('path');
@@ -9,10 +9,13 @@ const { spawn } = require('child_process');
 const settings = require('./settings');
 const registry = require('./converter/registry');
 const engine = require('./converter/engine');
+const desktop = require('./desktop');
 
 let mainWindow = null;
 let floatWindow = null;
 let installProcess = null;
+let tray = null;
+let isQuitting = false;
 
 const APP_NAME = 'Tangerine';
 const isDev = process.argv.includes('--dev');
@@ -45,8 +48,16 @@ function createWindow() {
     mainWindow.show();
     if (isDev) mainWindow.webContents.openDevTools({ mode: 'detach' });
   });
+  mainWindow.webContents.once('did-finish-load', () => {
+    if (!isQuitting && !mainWindow.isVisible()) mainWindow.show();
+  });
   mainWindow.on('maximize', () => mainWindow.webContents.send('window:state', { maximized: true }));
   mainWindow.on('unmaximize', () => mainWindow.webContents.send('window:state', { maximized: false }));
+  mainWindow.on('close', (event) => {
+    if (isQuitting) return;
+    event.preventDefault();
+    mainWindow.hide();
+  });
   mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) shell.openExternal(url);
@@ -67,22 +78,96 @@ if (!lock) {
   app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
       mainWindow.focus();
     }
   });
 
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
+    desktop.register();
+    desktop.refresh();
     createWindow();
+    createTray();
     app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+      if (!mainWindow) createWindow();
+      else showMainWindow();
     });
   });
 }
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (!tray && process.platform !== 'darwin') app.quit();
 });
+
+app.on('before-quit', () => {
+  isQuitting = true;
+  desktop.dispose();
+  if (tray) {
+    tray.destroy();
+    tray = null;
+  }
+});
+
+app.on('tangerine:open-settings', () => {
+  showMainWindow();
+  setTimeout(() => mainWindow?.webContents.send('tangerine:open-settings'), 250);
+});
+
+function showMainWindow() {
+  if (!mainWindow) {
+    createWindow();
+    return;
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+function buildTrayMenu() {
+  return Menu.buildFromTemplate([
+    { label: 'Open Tangerine', click: showMainWindow },
+    { type: 'separator' },
+    {
+      label: 'Desktop wheel',
+      type: 'checkbox',
+      checked: Boolean(settings.get().desktopWheel),
+      click: (item) => {
+        desktop.setEnabled(item.checked);
+        refreshTrayMenu();
+      }
+    },
+    {
+      label: 'Settings…',
+      click: () => {
+        showMainWindow();
+        setTimeout(() => mainWindow?.webContents.send('tangerine:open-settings'), 250);
+      }
+    },
+    { type: 'separator' },
+    {
+      label: 'Quit Tangerine',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
+}
+
+function refreshTrayMenu() {
+  if (tray) tray.setContextMenu(buildTrayMenu());
+}
+
+function createTray() {
+  if (tray) return;
+  const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
+  const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  tray = new Tray(icon);
+  tray.setToolTip('Tangerine — local-first file tools');
+  tray.setContextMenu(buildTrayMenu());
+  tray.on('click', showMainWindow);
+}
 
 // ---------------------------------------------------------------------------
 // Window controls
@@ -129,7 +214,14 @@ ipcMain.handle('registry:get', () => ({
 }));
 
 ipcMain.handle('settings:get', () => settings.get());
-ipcMain.handle('settings:set', (e, patch) => settings.set(patch || {}));
+ipcMain.handle('settings:set', (e, patch) => {
+  const next = settings.set(patch || {});
+  if (patch && Object.prototype.hasOwnProperty.call(patch, 'desktopWheel')) {
+    desktop.refresh();
+    refreshTrayMenu();
+  }
+  return next;
+});
 ipcMain.handle('settings:pick-folder', async () => {
   const res = await dialog.showOpenDialog(mainWindow, {
     title: 'Choose an output folder',
@@ -313,7 +405,8 @@ ipcMain.handle('file:open', async (e, filePath) => {
 });
 
 ipcMain.handle('file:move', async (e, filePath) => {
-  const res = await dialog.showOpenDialog(mainWindow, {
+  const parent = mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible() ? mainWindow : null;
+  const res = await dialog.showOpenDialog(parent, {
     title: 'Move to folder',
     properties: ['openDirectory', 'createDirectory']
   });

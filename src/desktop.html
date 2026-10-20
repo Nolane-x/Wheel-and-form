@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: file:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'">
+  <title>Desktop wheel</title>
+  <link rel="stylesheet" href="styles-wheel.css">
+  <link rel="stylesheet" href="desktop.css">
+</head>
+<body>
+  <div class="desk-root" id="deskRoot">
+    <div class="desk-file" id="deskFile" hidden>
+      <span class="desk-file-icon" id="deskFileIcon"></span>
+      <span class="desk-file-text">
+        <span class="desk-file-name" id="deskFileName"></span>
+        <span class="desk-file-meta" id="deskFileMeta"></span>
+      </span>
+    </div>
+
+    <div class="wheel-layer is-drag" id="wheelLayer">
+      <div class="wheel-shell">
+        <div class="wheel-kicker"></div>
+        <h2 class="wheel-title"></h2>
+        <div class="wheel-sub"></div>
+        <div class="wheel-tabs" hidden></div>
+
+        <div class="wheel-stage">
+          <div class="wheel-halo"></div>
+          <svg class="wheel-svg" viewBox="-140 -140 280 280" width="340" height="340" aria-hidden="true">
+            <defs>
+              <radialGradient id="petalFill" cx="50%" cy="50%" r="65%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity=".98"/>
+                <stop offset="58%" stop-color="#ffffff" stop-opacity=".82"/>
+                <stop offset="100%" stop-color="#ffeadc" stop-opacity=".66"/>
+              </radialGradient>
+              <linearGradient id="petalActive" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ff9a68"/>
+                <stop offset="55%" stop-color="#ff6a30"/>
+                <stop offset="100%" stop-color="#f04a12"/>
+              </linearGradient>
+              <radialGradient id="wheelBackdrop" cx="50%" cy="42%" r="58%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity=".56"/>
+                <stop offset="66%" stop-color="#ffffff" stop-opacity=".20"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity=".08"/>
+              </radialGradient>
+              <filter id="petalShadow" x="-40%" y="-40%" width="180%" height="180%">
+                <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#5b3a25" flood-opacity=".14"/>
+              </filter>
+              <filter id="backdropBlur" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="9"/>
+              </filter>
+            </defs>
+            <circle class="wheel-backdrop" r="127.4" fill="url(#wheelBackdrop)" filter="url(#backdropBlur)"/>
+            <circle class="wheel-rim" r="127.4" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1"/>
+            <g class="wheel-petals"></g>
+            <circle class="wheel-hub-ring" r="48.5" fill="none" stroke="rgba(255,255,255,.78)" stroke-width="1"/>
+          </svg>
+          <div class="wheel-center"></div>
+        </div>
+
+        <div class="wheel-detail"></div>
+        <div class="wheel-keys">
+          <span class="wheel-key" data-wheel-key="convert"><kbd>Shift</kbd>Formats</span>
+          <span class="wheel-key" data-wheel-key="tools"><kbd>Ctrl</kbd>Tools</span>
+          <span class="wheel-key" data-wheel-key="actions"><kbd>Alt</kbd>Actions</span>
+        </div>
+        <div class="wheel-hint"><kbd>Esc</kbd> cancel</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="icons.js"></script>
+  <script src="wheel.js"></script>
+  <script src="desktop.js"></script>
+</body>
+</html>

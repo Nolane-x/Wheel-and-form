@@ -8,6 +8,7 @@ const DEFAULTS = {
   outputMode: 'beside', // beside | ask | custom
   customFolder: '',
   revealAfter: false,
+  desktopWheel: true,
   toolPaths: {},
   setupDismissed: false
 };
@@ -48,6 +49,7 @@ function set(patch = {}) {
   if (typeof patch.outputMode === 'string') cache.outputMode = patch.outputMode;
   if (typeof patch.customFolder === 'string') cache.customFolder = patch.customFolder;
   if (typeof patch.revealAfter === 'boolean') cache.revealAfter = patch.revealAfter;
+  if (typeof patch.desktopWheel === 'boolean') cache.desktopWheel = patch.desktopWheel;
   if (typeof patch.setupDismissed === 'boolean') cache.setupDismissed = patch.setupDismissed;
   if (patch.toolPaths && typeof patch.toolPaths === 'object') {
     cache.toolPaths = { ...cache.toolPaths, ...patch.toolPaths };

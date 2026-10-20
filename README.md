@@ -13,6 +13,7 @@ Drop a file, hold a key, and pick what you need from a radial wheel. Everything 
 - **6 file actions** — share/copy, floating preview, duplicate, move, copy path, open terminal
 - **Local-only processing** — files are read and written on your machine
 - **Keyboard-first radial wheel** — `Shift` for formats, `Ctrl` for tools, `Alt` for file actions
+- **System-wide desktop wheel** — start a drag in Explorer or on the desktop, hold a key, and finish on the wheel without opening the app first
 - **Native Windows shell integration** — reveal outputs, open files, copy paths and open a terminal in the file's folder
 
 ### Format families
@@ -48,6 +49,14 @@ PDF split, merge, organize and create are handled in-process with `pdf-lib`, so 
 
 The app remembers your output choice and can reveal results in Explorer when a job finishes.
 
+### Outside the app
+
+The same wheel works anywhere in Windows. Start dragging a file in Explorer, on the desktop, or from a file dialog and hold `Shift`, `Ctrl`, or `Alt`. The wheel appears at the pointer on the display you are using. Drop on a petal to run the job, or press `Escape` to cancel.
+
+Outside the app, results are always written beside the original file and the source is never changed. A small status card shows progress, then lets you reveal the result or open engine setup if something is missing.
+
+Closing the main window leaves Tangerine running in the notification area. Right-click the tray icon to reopen it, turn the desktop wheel on or off, open Settings, or quit.
+
 ## Requirements
 
 Tangerine detects common conversion engines at runtime. Missing engines can be installed from **Settings → Engines** with `winget`, or you can point the app at an existing executable.
@@ -78,8 +87,11 @@ Useful checks:
 
 ```bash
 node --check electron/main.js
+powershell -ExecutionPolicy Bypass -File native/build.ps1
 npm run build:win
 ```
+
+The desktop wheel uses a tiny native helper. `native/build.ps1` compiles it with the .NET Framework compiler that ships with Windows; the built executable is copied into the installer automatically.
 
 ## Build a Windows installer
 
@@ -98,7 +110,8 @@ The GitHub Actions workflow in `.github/workflows/build.yml` builds the same ins
 
 ```text
 electron/
-  main.js              Electron window, IPC, file and conversion jobs
+  main.js              Electron window, tray, IPC, file and conversion jobs
+  desktop.js           Desktop overlay, status card, native drag helper
   preload.js           Safe window.api bridge
   settings.js          JSON preferences
   converter/
@@ -112,9 +125,14 @@ src/
   app.js               Queue, views, stats and activity
   interactions.js      Wheels, drag/drop, actions and keyboard
   wheel.js             Radial wheel geometry and rendering
+  desktop.html/css/js  Transparent system-wide wheel overlay
+  desktop-status.*     Progress and result card
   settings.js          Settings and engine setup
   toolmodal.js         Tool options and previews
   float.js             Floating preview window
+native/
+  TangerineDragHook.cs Native Explorer/desktop drag detector
+  build.ps1            Builds the helper with the Windows .NET compiler
 assets/                Icons, fonts and hero artwork
 ```
 

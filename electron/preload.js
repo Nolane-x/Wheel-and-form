@@ -31,7 +31,8 @@ contextBridge.exposeInMainWorld('api', {
     info: () => invoke('app:info'),
     openExternal: (url) => invoke('app:open-external', url),
     clipboardText: (text) => invoke('app:clipboard-text', text),
-    openSettingsFile: () => invoke('app:open-settings-file')
+    openSettingsFile: () => invoke('app:open-settings-file'),
+    onOpenSettings: (cb) => listen('tangerine:open-settings', cb)
   },
 
   registry: {
@@ -79,5 +80,21 @@ contextBridge.exposeInMainWorld('api', {
 
   tool: {
     run: (job) => invoke('tool:run', job)
+  },
+
+  desktop: {
+    convert: (payload) => invoke('desktop:convert', payload),
+    tool: (payload) => invoke('desktop:tool', payload),
+    hide: () => invoke('desktop:hide'),
+    closeStatus: () => invoke('desktop:status-close'),
+    notify: (payload) => invoke('desktop:notify', payload),
+    openSettings: () => invoke('desktop:open-settings'),
+    busy: () => invoke('desktop:busy'),
+    onShow: (cb) => listen('desktop:show', cb),
+    onMove: (cb) => listen('desktop:move', cb),
+    onMode: (cb) => listen('desktop:mode', cb),
+    onMouseUp: (cb) => listen('desktop:mouseup', cb),
+    onCancel: (cb) => listen('desktop:cancel', cb),
+    onStatus: (cb) => listen('desktop:status', cb)
   }
 });

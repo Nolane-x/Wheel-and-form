@@ -23,6 +23,19 @@
 
   function petalPath(a0, a1) {
     const span = a1 - a0;
+    // One option is a complete ring, not a wedge with a tiny gap.
+    if (span > Math.PI * 1.9) {
+      return [
+        `M 0 ${-OUTER}`,
+        `A ${OUTER} ${OUTER} 0 1 0 0 ${OUTER}`,
+        `A ${OUTER} ${OUTER} 0 1 0 0 ${-OUTER}`,
+        'Z',
+        `M 0 ${-INNER}`,
+        `A ${INNER} ${INNER} 0 1 1 0 ${INNER}`,
+        `A ${INNER} ${INNER} 0 1 1 0 ${-INNER}`,
+        'Z'
+      ].join(' ');
+    }
     const radius = Math.min(CORNER, (OUTER - INNER) * 0.38, span * INNER * 0.27, span * OUTER * 0.27);
     const innerPad = Math.max(0.015, radius / INNER);
     const outerPad = Math.max(0.012, radius / OUTER);
@@ -30,14 +43,17 @@
     const ia1 = a1 - innerPad;
     const oa0 = a0 + outerPad;
     const oa1 = a1 - outerPad;
+    // A single option spans almost the whole circle; SVG needs the large-arc
+    // flag for that sweep or it draws the tiny complementary wedge instead.
+    const largeArc = a1 - a0 > Math.PI ? 1 : 0;
     const p = (r, a) => `${fmt(pt(r, a)[0])} ${fmt(pt(r, a)[1])}`;
     const d = [
       `M ${p(INNER, ia0)}`,
-      `A ${INNER} ${INNER} 0 0 0 ${p(INNER, ia1)}`,
+      `A ${INNER} ${INNER} 0 ${largeArc} 0 ${p(INNER, ia1)}`,
       `Q ${p(INNER, a1)} ${p(INNER + radius, a1)}`,
       `L ${p(OUTER - radius, a1)}`,
       `Q ${p(OUTER, a1)} ${p(OUTER, oa1)}`,
-      `A ${OUTER} ${OUTER} 0 0 1 ${p(OUTER, oa0)}`,
+      `A ${OUTER} ${OUTER} 0 ${largeArc} 1 ${p(OUTER, oa0)}`,
       `Q ${p(OUTER, a0)} ${p(OUTER - radius, a0)}`,
       `L ${p(INNER + radius, a0)}`,
       `Q ${p(INNER, a0)} ${p(INNER, ia0)}`,

@@ -24,6 +24,12 @@
       "assets/**/*",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "native/bin/TangerineDragHook.exe",
+        "to": "native/TangerineDragHook.exe"
+      }
+    ],
     "win": {
       "target": [
         "nsis"

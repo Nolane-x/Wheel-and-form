@@ -282,7 +282,8 @@ async function uniqueFolder(dir, base, suffix = '') {
   return candidate;
 }
 
-function outputDirFor(input) {
+function outputDirFor(input, ctx) {
+  if (ctx && ctx.forceBeside) return path.dirname(input);
   const s = settings.get();
   if (s.outputMode === 'custom' && s.customFolder) return s.customFolder;
   if (input && fs.existsSync(input) && fs.statSync(input).isDirectory()) return path.dirname(input);
@@ -290,9 +291,9 @@ function outputDirFor(input) {
 }
 
 async function pickFileOutput(input, suffix, ext, ctx) {
-  const dir = outputDirFor(input);
+  const dir = outputDirFor(input, ctx);
   const base = baseNameFor(input);
-  if (ctx && typeof ctx.pickSavePath === 'function' && settings.get().outputMode === 'ask') {
+  if (!(ctx && ctx.forceBeside) && ctx && typeof ctx.pickSavePath === 'function' && settings.get().outputMode === 'ask') {
     const suggested = path.join(dir, `${base}${suffix}.${ext}`);
     const picked = await ctx.pickSavePath(suggested, ext);
     if (!picked) {
@@ -305,8 +306,8 @@ async function pickFileOutput(input, suffix, ext, ctx) {
   return uniquePath(dir, base, suffix, ext);
 }
 
-async function pickFolderOutput(input, suffix) {
-  const dir = outputDirFor(input);
+async function pickFolderOutput(input, suffix, ctx) {
+  const dir = outputDirFor(input, ctx);
   const base = baseNameFor(input);
   return uniqueFolder(dir, base, suffix);
 }
@@ -569,14 +570,14 @@ async function executeConversion(job, def) {
 
   if (def.special === 'docToImages') {
     requireTool('soffice');
-    const folder = await pickFolderOutput(input, ` ${targetExt.toUpperCase()}`);
+    const folder = await pickFolderOutput(input, ` ${targetExt.toUpperCase()}`, ctx);
     const outputs = await documentToImages(input, path.join(folder, base), targetExt, ctx);
     return finish(outputs[0], { output: outputs[0], outputs, folder, count: outputs.length });
   }
 
   if (def.special === 'pdfImages') {
     requireTool('magick');
-    const folder = await pickFolderOutput(input, ' Images');
+    const folder = await pickFolderOutput(input, ' Images', ctx);
     const outputs = await rasterizePdf(input, path.join(folder, base), targetExt);
     return finish(outputs[0], { output: outputs[0], outputs, folder, count: outputs.length });
   }
@@ -940,7 +941,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
     }
 
     case 'splitPDF': {
-      const folder = await pickFolderOutput(input, suffix);
+      const folder = await pickFolderOutput(input, suffix, ctx);
       const outputs = await pdf.split(input, folder, base);
       return finish(outputs[0], { output: outputs[0], outputs, folder, count: outputs.length });
     }
@@ -952,7 +953,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
     }
 
     case 'extractArchive': {
-      const folder = await pickFolderOutput(input, suffix);
+      const folder = await pickFolderOutput(input, suffix, ctx);
       await sevenExtract(input, folder);
       const entries = await fsp.readdir(folder);
       return finish(folder, { output: folder, folder, count: entries.length, isFolder: true });
@@ -1091,7 +1092,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
       const dims = await identify(input);
       const duration = dims.duration || (await probeDuration(input));
       if (!duration) throw new Error('Could not read the video duration.');
-      const folder = await pickFolderOutput(input, suffix);
+      const folder = await pickFolderOutput(input, suffix, ctx);
       await fsp.mkdir(folder, { recursive: true });
       const outputs = [];
       for (let i = 0; i < count; i++) {
@@ -1106,7 +1107,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
 
     case 'splitVideo': {
       const length = Number(options.length || 30);
-      const folder = await pickFolderOutput(input, suffix);
+      const folder = await pickFolderOutput(input, suffix, ctx);
       await fsp.mkdir(folder, { recursive: true });
       const ffmpeg = requireTool('ffmpeg');
       const outExt = ext === 'gif' ? 'mp4' : ext;
