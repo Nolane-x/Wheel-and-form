@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Drawing;
+using System.Windows.Forms;
 
 internal static class Program
 {
@@ -115,6 +117,57 @@ internal static class Program
         public POINT pt;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MONITORINFO
+    {
+        public int cbSize;
+        public RECT rcMonitor;
+        public RECT rcWork;
+        public uint dwFlags;
+    }
+
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
+    private const int RGN_DIFF = 4;
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_SHOWWINDOW = 0x0040;
+    private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+    private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromPoint(POINT pt, uint dwFlags);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw);
+
+    [DllImport("gdi32.dll")]
+    private static extern IntPtr CreateRectRgn(int left, int top, int right, int bottom);
+
+    [DllImport("gdi32.dll")]
+    private static extern IntPtr CreateEllipticRgn(int left, int top, int right, int bottom);
+
+    [DllImport("gdi32.dll")]
+    private static extern int CombineRgn(IntPtr hrgnDest, IntPtr hrgnSrc1, IntPtr hrgnSrc2, int fnCombineMode);
+
+    [DllImport("gdi32.dll")]
+    private static extern bool DeleteObject(IntPtr hObject);
+
     private static IntPtr _mouseHook = IntPtr.Zero;
     private static IntPtr _keyboardHook = IntPtr.Zero;
     private static LowLevelProc _mouseProc;
@@ -132,6 +185,11 @@ internal static class Program
     private static int _parentPid;
     private static string _mode;
     private static long _lastMoveSent;
+
+    private static DropForm _dropForm;
+    private static Thread _dropThread;
+    private static readonly ManualResetEventSlim DropReady = new ManualResetEventSlim(false);
+    private static long _lastHoverSent;
 
     private static int Main(string[] args)
     {
@@ -152,6 +210,8 @@ internal static class Program
         {
             try { SetProcessDPIAware(); } catch { }
         }
+
+        StartDropTarget();
 
         _mouseProc = MouseHook;
         _keyboardProc = KeyboardHook;
@@ -229,15 +289,18 @@ internal static class Program
         if (_parentPid > 0 && pid == (uint)_parentPid) return false;
 
         string rootClass = ClassOf(root);
-        if (rootClass == "CabinetWClass" || rootClass == "ExploreWClass" ||
-            rootClass == "Progman" || rootClass == "WorkerW" ||
+        string childClass = ClassOf(hwnd);
+        bool shellItem = childClass == "SysListView32" || childClass == "DirectUIHWND" || childClass == "ShellView";
+
+        // For Explorer windows only the file area is a drag source. Clicking
+        // the title bar, ribbon, or scrollbar must not arm the wheel.
+        if (rootClass == "CabinetWClass" || rootClass == "ExploreWClass") return shellItem;
+        if (rootClass == "Progman" || rootClass == "WorkerW" ||
             rootClass == "#32770" || rootClass == "ApplicationFrameHost")
         {
             return true;
         }
-
-        string childClass = ClassOf(hwnd);
-        return childClass == "SysListView32" || childClass == "DirectUIHWND" || childClass == "ShellView";
+        return shellItem;
     }
 
     private static string HeldMode()
@@ -252,6 +315,7 @@ internal static class Program
     {
         _mode = mode;
         _wheelOpen = true;
+        ArmDropForm(x, y);
         Emit("{\"type\":\"show\",\"mode\":\"" + mode + "\",\"x\":" + x + ",\"y\":" + y + "}");
     }
 
@@ -275,6 +339,11 @@ internal static class Program
                 _startY = y;
                 _lastX = x;
                 _lastY = y;
+                if (_candidate)
+                {
+                    PrepareDropForm(x, y);
+                    Emit("{\"type\":\"candidate\",\"x\":" + x + ",\"y\":" + y + "}");
+                }
             }
             else if (message == WM_MOUSEMOVE && _candidate && !_cancelled)
             {
@@ -301,9 +370,10 @@ internal static class Program
             }
             else if (message == WM_LBUTTONUP)
             {
-                if (_wheelOpen)
+                if (_candidate || _wheelOpen)
                 {
-                    Emit("{\"type\":\"mouseup\"}");
+                    Emit("{\"type\":\"mouseup\",\"open\":" + (_wheelOpen ? "true" : "false") + "}");
+                    HideDropForm(true);
                 }
                 _candidate = false;
                 _dragging = false;
@@ -332,6 +402,7 @@ internal static class Program
                 else if (vk == VK_MENU) next = "actions";
                 else if (vk == VK_ESCAPE && _wheelOpen)
                 {
+                    HideDropForm(false);
                     Emit("{\"type\":\"cancel\"}");
                     _wheelOpen = false;
                     _cancelled = true;
@@ -356,5 +427,316 @@ internal static class Program
             }
         }
         return CallNextHookEx(_keyboardHook, nCode, wParam, lParam);
+    }
+
+    // -----------------------------------------------------------------------
+    // Native OLE drop target
+    //
+    // Electron cannot receive an Explorer drag in a window that is shown after
+    // the drag has begun, even when the window is click-through beforehand.
+    // This invisible WinForms window exists before the drag starts and owns the
+    // real OLE drop target. It is shown with an empty region on mouse-down, so
+    // a normal file drag is untouched. When the wheel opens it gets a region
+    // that covers the monitor except for a hole at the drag origin, and the
+    // Electron page only paints the wheel.
+    // -----------------------------------------------------------------------
+
+    private static void StartDropTarget()
+    {
+        if (_dropForm != null) return;
+        _dropThread = new Thread(() =>
+        {
+            try
+            {
+                Application.EnableVisualStyles();
+                _dropForm = new DropForm();
+                DropReady.Set();
+                Application.Run();
+            }
+            catch (Exception ex)
+            {
+                DropReady.Set();
+                try { Console.Error.WriteLine(ex.ToString()); } catch { }
+            }
+        });
+        _dropThread.IsBackground = true;
+        _dropThread.SetApartmentState(ApartmentState.STA);
+        _dropThread.Start();
+        DropReady.Wait(2500);
+    }
+
+    private static void InvokeDrop(Action<DropForm> action)
+    {
+        DropForm form = _dropForm;
+        if (form == null || form.IsDisposed) return;
+        try
+        {
+            form.BeginInvoke((Action)(() =>
+            {
+                if (!form.IsDisposed) action(form);
+            }));
+        }
+        catch { }
+    }
+
+    private static void PrepareDropForm(int x, int y)
+    {
+        InvokeDrop(form => form.Prepare(x, y));
+    }
+
+    private static void ArmDropForm(int x, int y)
+    {
+        InvokeDrop(form => form.Arm(x, y));
+    }
+
+    private static void HideDropForm(bool soon)
+    {
+        InvokeDrop(form =>
+        {
+            if (soon) form.HideSoon();
+            else form.Disarm();
+        });
+    }
+
+    private static MONITORINFO MonitorAt(int x, int y)
+    {
+        var point = new POINT { X = x, Y = y };
+        IntPtr monitor = MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
+        var info = new MONITORINFO();
+        info.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+        if (monitor != IntPtr.Zero) GetMonitorInfo(monitor, ref info);
+        return info;
+    }
+
+    private static string JsonString(string value)
+    {
+        var builder = new StringBuilder();
+        builder.Append('"');
+        foreach (char ch in value)
+        {
+            switch (ch)
+            {
+                case '"': builder.Append("\\\""); break;
+                case '\\': builder.Append("\\\\"); break;
+                case '\n': builder.Append("\\n"); break;
+                case '\r': builder.Append("\\r"); break;
+                case '\t': builder.Append("\\t"); break;
+                default:
+                    if (ch < 32) builder.Append("\\u").Append(((int)ch).ToString("x4"));
+                    else builder.Append(ch);
+                    break;
+            }
+        }
+        builder.Append('"');
+        return builder.ToString();
+    }
+
+    private static string PathsJson(string[] files)
+    {
+        var builder = new StringBuilder();
+        builder.Append('[');
+        for (int i = 0; i < files.Length; i++)
+        {
+            if (i > 0) builder.Append(',');
+            builder.Append(JsonString(files[i]));
+        }
+        builder.Append(']');
+        return builder.ToString();
+    }
+
+    private static void EmitPaths(string type, string[] files, int x, int y)
+    {
+        Emit("{\"type\":\"" + type + "\",\"x\":" + x + ",\"y\":" + y + ",\"paths\":" + PathsJson(files) + "}");
+    }
+
+    private sealed class DropForm : Form
+    {
+        private readonly System.Windows.Forms.Timer _topmostTimer;
+        private readonly System.Windows.Forms.Timer _hideTimer;
+        private int _monitorLeft;
+        private int _monitorTop;
+        private int _monitorWidth;
+        private int _monitorHeight;
+        private int _holeX;
+        private int _holeY;
+
+        public DropForm()
+        {
+            FormBorderStyle = FormBorderStyle.None;
+            ShowInTaskbar = false;
+            TopMost = true;
+            StartPosition = FormStartPosition.Manual;
+            AutoScaleMode = AutoScaleMode.None;
+            BackColor = Color.Black;
+            Opacity = 0.01;
+            AllowDrop = true;
+            Width = 300;
+            Height = 300;
+            DoubleBuffered = true;
+
+            _topmostTimer = new System.Windows.Forms.Timer();
+            _topmostTimer.Interval = 250;
+            _topmostTimer.Tick += (sender, args) => KeepTopmost();
+
+            _hideTimer = new System.Windows.Forms.Timer();
+            _hideTimer.Interval = 600;
+            _hideTimer.Tick += (sender, args) => Disarm();
+
+            // Force the native window and its OLE drop target to exist before
+            // the first drag starts.
+            IntPtr force = Handle;
+
+            DragEnter += OnDragEnter;
+            DragOver += OnDragOver;
+            DragLeave += OnDragLeave;
+            DragDrop += OnDragDrop;
+        }
+
+        protected override bool ShowWithoutActivation
+        {
+            get { return true; }
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x08000000; // WS_EX_NOACTIVATE
+                cp.ExStyle |= 0x00000080; // WS_EX_TOOLWINDOW
+                return cp;
+            }
+        }
+
+        public void Prepare(int x, int y)
+        {
+            _hideTimer.Stop();
+            MONITORINFO info = MonitorAt(x, y);
+            _monitorLeft = info.rcMonitor.Left;
+            _monitorTop = info.rcMonitor.Top;
+            _monitorWidth = Math.Max(1, info.rcMonitor.Right - info.rcMonitor.Left);
+            _monitorHeight = Math.Max(1, info.rcMonitor.Bottom - info.rcMonitor.Top);
+
+            SetBounds(_monitorLeft, _monitorTop, _monitorWidth, _monitorHeight);
+            SetEmptyRegion();
+            if (!Visible) Show();
+            SetWindowPos(Handle, HWND_TOPMOST, _monitorLeft, _monitorTop, _monitorWidth, _monitorHeight,
+                SWP_NOACTIVATE | SWP_SHOWWINDOW);
+            KeepTopmost();
+            _topmostTimer.Start();
+        }
+
+        public void Arm(int x, int y)
+        {
+            // The threshold can be crossed on a different monitor than the
+            // mouse-down. Move the native drop window to the display that owns
+            // the cursor before shaping the ring.
+            MONITORINFO info = MonitorAt(x, y);
+            _monitorLeft = info.rcMonitor.Left;
+            _monitorTop = info.rcMonitor.Top;
+            _monitorWidth = Math.Max(1, info.rcMonitor.Right - info.rcMonitor.Left);
+            _monitorHeight = Math.Max(1, info.rcMonitor.Bottom - info.rcMonitor.Top);
+
+            if (!Visible) Show();
+            SetBounds(_monitorLeft, _monitorTop, _monitorWidth, _monitorHeight);
+            _holeX = x - _monitorLeft;
+            _holeY = y - _monitorTop;
+            SetRingRegion(_monitorWidth, _monitorHeight, _holeX, _holeY, 44);
+            SetWindowPos(Handle, HWND_TOPMOST, _monitorLeft, _monitorTop, _monitorWidth, _monitorHeight,
+                SWP_NOACTIVATE | SWP_SHOWWINDOW);
+            KeepTopmost();
+            _topmostTimer.Start();
+        }
+
+        public void HideSoon()
+        {
+            if (!Visible) return;
+            _hideTimer.Stop();
+            _hideTimer.Start();
+        }
+
+        public void Disarm()
+        {
+            _hideTimer.Stop();
+            _topmostTimer.Stop();
+            SetEmptyRegion();
+            if (Visible) Hide();
+        }
+
+        private void KeepTopmost()
+        {
+            if (!Visible) return;
+            SetWindowPos(Handle, HWND_TOPMOST, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
+        private void SetEmptyRegion()
+        {
+            IntPtr empty = CreateRectRgn(0, 0, 0, 0);
+            if (SetWindowRgn(Handle, empty, true) == 0) DeleteObject(empty);
+        }
+
+        private void SetRingRegion(int width, int height, int holeX, int holeY, int radius)
+        {
+            IntPtr full = CreateRectRgn(0, 0, width, height);
+            IntPtr hole = CreateEllipticRgn(holeX - radius, holeY - radius, holeX + radius, holeY + radius);
+            IntPtr result = CreateRectRgn(0, 0, 0, 0);
+            CombineRgn(result, full, hole, RGN_DIFF);
+            DeleteObject(full);
+            DeleteObject(hole);
+            if (SetWindowRgn(Handle, result, true) == 0) DeleteObject(result);
+        }
+
+        private void OnDragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+            SendPaths("dragenter", e);
+            SendHover(e, true);
+        }
+
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+            SendHover(e, false);
+        }
+
+        private void OnDragLeave(object sender, EventArgs e)
+        {
+            Emit("{\"type\":\"leave\"}");
+        }
+
+        private void OnDragDrop(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+            SendPaths("drop", e);
+            try { BeginInvoke((Action)Disarm); } catch { Disarm(); }
+        }
+
+        private void SendHover(DragEventArgs e, bool force)
+        {
+            long now = Environment.TickCount;
+            if (!force && now - _lastHoverSent < 25) return;
+            _lastHoverSent = now;
+            int x = _monitorLeft + e.X;
+            int y = _monitorTop + e.Y;
+            Emit("{\"type\":\"hover\",\"x\":" + x + ",\"y\":" + y + "}");
+        }
+
+        private void SendPaths(string type, DragEventArgs e)
+        {
+            string[] files = null;
+            try { files = e.Data.GetData(DataFormats.FileDrop) as string[]; } catch { }
+            if (files == null || files.Length == 0)
+            {
+                try
+                {
+                    string one = e.Data.GetData("FileNameW") as string;
+                    if (!string.IsNullOrEmpty(one)) files = new[] { one };
+                }
+                catch { }
+            }
+            if (files == null || files.Length == 0) return;
+            EmitPaths(type, files, _monitorLeft + e.X, _monitorTop + e.Y);
+        }
     }
 }

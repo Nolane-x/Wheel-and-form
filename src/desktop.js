@@ -195,24 +195,35 @@
   async function runChoice(option) {
     if (!option || dropping) return;
     dropping = true;
-    const files = await pendingFiles;
-    const paths = files.filter(Boolean);
-    if (!paths.length) {
-      dropping = false;
+    try {
+      const busy = await api.desktop.busy().catch(() => false);
+      if (busy) {
+        api.desktop.hide();
+        api.desktop.notify({ state: 'error', title: 'Still working', error: 'Wait for the current desktop job to finish, then try again.' });
+        return;
+      }
+      const files = await pendingFiles.catch(() => []);
+      const paths = files.filter(Boolean);
+      if (!paths.length) {
+        api.desktop.hide();
+        return;
+      }
       api.desktop.hide();
-      return;
+      if (mode === 'convert') {
+        const res = await api.desktop.convert({ paths, target: option.id }).catch((err) => ({ ok: false, error: err.message }));
+        // The main process owns the result card for desktop conversions. Only
+        // surface a race where another job started between the busy check and
+        // this call; otherwise its notification would overwrite the rich card.
+        if (!res.ok && res.busy) api.desktop.notify({ state: 'error', title: 'Still working', error: res.error });
+      } else if (mode === 'tools') {
+        const res = await api.desktop.tool({ paths, toolId: option.id }).catch((err) => ({ ok: false, error: err.message }));
+        if (!res.ok && res.busy) api.desktop.notify({ state: 'error', title: 'Still working', error: res.error });
+      } else {
+        await runAction(paths[0], option.id);
+      }
+    } finally {
+      dropping = false;
     }
-    api.desktop.hide();
-    if (mode === 'convert') {
-      const res = await api.desktop.convert({ paths, target: option.id }).catch((err) => ({ ok: false, error: err.message }));
-      if (!res.ok && res.error) api.desktop.notify({ state: 'error', title: 'Could not convert', error: res.error, setup: /required|install/i.test(res.error) });
-    } else if (mode === 'tools') {
-      const res = await api.desktop.tool({ paths, toolId: option.id }).catch((err) => ({ ok: false, error: err.message }));
-      if (!res.ok && res.error) api.desktop.notify({ state: 'error', title: 'Tool failed', error: res.error, setup: /required|install/i.test(res.error) });
-    } else {
-      await runAction(paths[0], option.id);
-    }
-    dropping = false;
   }
 
   async function runAction(filePath, actionId) {
@@ -304,6 +315,29 @@
     wheel.hoverAt(event.clientX, event.clientY);
   }
 
+  function selectPath(filePath) {
+    const name = baseName(filePath);
+    const ext = extOf(name);
+    current = { name, ext, kind: ext === 'folder' ? 'folder' : categoryFor(ext), size: 0 };
+    showFile();
+  }
+
+  function chooseAt(x, y) {
+    if (!wheelOpen) return;
+    let index = wheel.hitTest(x, y);
+    if (index < 0 && wheel.inside(x, y)) index = wheel.index;
+    if (index < 0) {
+      api.desktop.hide();
+      return;
+    }
+    const option = (window.__deskOptions || [])[index];
+    if (!option) {
+      api.desktop.hide();
+      return;
+    }
+    runChoice(option);
+  }
+
   function onDrop(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -317,18 +351,34 @@
       api.desktop.hide();
       return;
     }
-    let index = wheel.hitTest(event.clientX, event.clientY);
-    if (index < 0 && wheel.inside(event.clientX, event.clientY)) index = wheel.index;
-    if (index < 0) {
+    chooseAt(event.clientX, event.clientY);
+  }
+
+  // The native helper owns the real OLE drop target. These events carry the
+  // cursor in overlay coordinates and the file paths already resolved by the
+  // helper, so a real Explorer drop works even though this page is click-through.
+  function onNativeDragEnter(payload) {
+    if (!payload || !Array.isArray(payload.paths) || !payload.paths.length) return;
+    pendingFiles = Promise.resolve(payload.paths);
+    if (current.name !== baseName(payload.paths[0])) selectPath(payload.paths[0]);
+    if (!wheelOpen) openWheel();
+    if (wheelOpen) wheel.hoverAt(payload.x, payload.y);
+  }
+
+  function onNativeHover(payload) {
+    if (!payload || !wheelOpen) return;
+    wheel.hoverAt(payload.x, payload.y);
+  }
+
+  function onNativeDrop(payload) {
+    if (!payload || !Array.isArray(payload.paths) || !payload.paths.length) {
       api.desktop.hide();
       return;
     }
-    const option = (window.__deskOptions || [])[index];
-    if (!option) {
-      api.desktop.hide();
-      return;
-    }
-    runChoice(option);
+    pendingFiles = Promise.resolve(payload.paths);
+    if (!current.name) selectPath(payload.paths[0]);
+    if (!wheelOpen) openWheel();
+    chooseAt(payload.x, payload.y);
   }
 
   // Wheel keeps its own options internally; mirror the array for drop selection.
@@ -344,18 +394,34 @@
     }
   }
 
-  function onShow(payload) {
-    mode = payload && payload.mode ? payload.mode : 'convert';
-    setPoint(payload.x || 0, payload.y || 0);
+  function resetWheel() {
     current = { name: '', ext: '', kind: '', size: 0 };
     pendingFiles = Promise.resolve([]);
-    wheelLayer.style.visibility = 'hidden';
     wheelOpen = false;
+    wheelLayer.style.visibility = 'hidden';
     showFile();
   }
 
+  function onShow(payload) {
+    const wasOpen = wheelOpen && Boolean(current.name);
+    const nextMode = payload && payload.mode ? payload.mode : mode;
+    const changedMode = nextMode !== mode;
+    mode = nextMode;
+    setPoint((payload && payload.x) || 0, (payload && payload.y) || 0);
+    // Dragenter can beat the helper's show event. A late show for the same
+    // drag may move the anchor or change the mode, but it must not wipe an
+    // already-open wheel.
+    if (wasOpen) {
+      if (changedMode) switchMode(nextMode);
+      return;
+    }
+    resetWheel();
+  }
+
   function onMove(payload) {
-    if (!payload) return;
+    // Continuous move events must not drag the wheel around with the pointer.
+    // A recenter is only sent when the drag crosses onto another display.
+    if (!payload || !payload.recenter) return;
     setPoint(payload.x, payload.y);
   }
 
@@ -380,8 +446,12 @@
     });
 
     api.desktop.onShow(onShow);
+    api.desktop.onReset(resetWheel);
     api.desktop.onMove(onMove);
     api.desktop.onMode(onMode);
+    api.desktop.onDragEnter(onNativeDragEnter);
+    api.desktop.onHover(onNativeHover);
+    api.desktop.onDrop(onNativeDrop);
     api.desktop.onCancel(() => api.desktop.hide());
   }
 

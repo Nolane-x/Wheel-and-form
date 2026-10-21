@@ -41,7 +41,7 @@ html, body {
   overflow: hidden;
   /* A barely-visible fill keeps the transparent overlay hit-testable so drops
      anywhere on the display reach this page, not the window underneath. */
-  background: rgba(255, 255, 255, .002);
+  background: rgba(255, 255, 255, .01);
   font-family: "DM Sans", "Segoe UI", sans-serif;
   color: var(--ink);
   user-select: none;

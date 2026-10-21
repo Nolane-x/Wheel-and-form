@@ -91,7 +91,7 @@ powershell -ExecutionPolicy Bypass -File native/build.ps1
 npm run build:win
 ```
 
-The desktop wheel uses a tiny native helper. `native/build.ps1` compiles it with the .NET Framework compiler that ships with Windows; the built executable is copied into the installer automatically.
+The desktop wheel uses a tiny native helper. It detects global drags and owns the native OLE drop target; Electron only paints the wheel on top. `native/build.ps1` compiles it with the .NET Framework compiler that ships with Windows; the built executable is copied into the installer automatically.
 
 ## Build a Windows installer
 
@@ -131,7 +131,7 @@ src/
   toolmodal.js         Tool options and previews
   float.js             Floating preview window
 native/
-  TangerineDragHook.cs Native Explorer/desktop drag detector
+  TangerineDragHook.cs Native drag detector and OLE drop target
   build.ps1            Builds the helper with the Windows .NET compiler
 assets/                Icons, fonts and hero artwork
 ```

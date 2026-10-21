@@ -9,6 +9,6 @@ if (-not (Test-Path $csc)) {
 }
 $outDir = Join-Path $PSScriptRoot 'bin'
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
-& $csc /nologo /target:winexe /optimize+ /out:"$outDir\TangerineDragHook.exe" (Join-Path $PSScriptRoot 'TangerineDragHook.cs')
+& $csc /nologo /target:winexe /optimize+ /r:System.Windows.Forms.dll /r:System.Drawing.dll /out:"$outDir\TangerineDragHook.exe" (Join-Path $PSScriptRoot 'TangerineDragHook.cs')
 if ($LASTEXITCODE -ne 0) { throw "csc failed with exit code $LASTEXITCODE" }
 Write-Host "Built $outDir\TangerineDragHook.exe"

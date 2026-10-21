@@ -18,6 +18,11 @@ let status = null;
 let helper = null;
 let helperBuffer = '';
 let helperEnabled = false;
+let helperGeneration = 0;
+let helperRestartTimer = null;
+let helperRestarts = 0;
+let helperStartedAt = 0;
+let disposed = false;
 let lastPoint = { x: 0, y: 0 };
 let activeDisplayId = null;
 let hideTimer = null;
@@ -76,12 +81,19 @@ function ensureOverlay() {
   overlay.setSkipTaskbar(true);
   overlay.webContents.on('did-finish-load', () => {
     overlayReady = true;
-    if (!pendingShow || !overlay || overlay.isDestroyed()) return;
-    const payload = pendingShow;
-    pendingShow = null;
-    overlay.webContents.send('desktop:show', payload);
-    if (!overlay.isVisible()) overlay.showInactive();
-    overlay.moveTop();
+    if (!overlay || overlay.isDestroyed()) return;
+    if (!settings.get().desktopWheel) {
+      pendingShow = null;
+      overlay.hide();
+      return;
+    }
+    if (pendingShow) {
+      const payload = pendingShow;
+      pendingShow = null;
+      showOverlay(payload.mode, payload.x, payload.y);
+    } else {
+      overlay.hide();
+    }
   });
   overlay.loadFile(path.join(__dirname, '..', 'src', 'desktop.html'));
   overlay.on('closed', () => { overlay = null; overlayReady = false; pendingShow = null; });
@@ -111,29 +123,76 @@ function showOverlay(mode, x, y) {
   const win = positionOverlay(display);
   const local = { x: Math.round(point.x - display.bounds.x), y: Math.round(point.y - display.bounds.y) };
   if (!overlayReady) {
-    pendingShow = { mode, x: local.x, y: local.y };
+    // Keep screen coordinates here. The overlay may finish loading while the
+    // pointer is on another monitor; did-finish-load replays showOverlay(),
+    // which converts them to local coordinates for the target display.
+    pendingShow = { mode, x, y };
     return;
   }
   sendOverlay('desktop:show', { mode, x: local.x, y: local.y });
-  if (!win.isVisible()) win.showInactive();
+  // The native helper owns the OLE drop target. The Electron window only paints
+  // the wheel and must stay click-through so the helper receives the drop.
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setIgnoreMouseEvents(true, { forward: true });
+  // Always ask Windows to show it. isVisible() can be stale for transparent,
+  // non-focusable windows after a hide, which made the wheel work only once.
+  win.showInactive();
   win.moveTop();
+}
+
+function overlayPoint(x, y) {
+  const { display, point } = displayFor(x, y);
+  return {
+    display,
+    x: Math.round(point.x - display.bounds.x),
+    y: Math.round(point.y - display.bounds.y)
+  };
 }
 
 function moveOverlay(x, y) {
   const { display, point } = displayFor(x, y);
   lastPoint = point;
+  // The wheel must stay where the drag started. Only re-anchor it if the
+  // pointer crosses onto a different monitor, otherwise it follows the cursor
+  // and the centre hub is always under the pointer.
   if (display.id !== activeDisplayId) {
     activeDisplayId = display.id;
-    positionOverlay(display);
+    const win = positionOverlay(display);
+    const local = { x: Math.round(point.x - display.bounds.x), y: Math.round(point.y - display.bounds.y) };
+    sendOverlay('desktop:move', { x: local.x, y: local.y, recenter: true });
+    if (!win.isVisible()) win.showInactive();
+    win.moveTop();
   }
-  const local = { x: Math.round(point.x - display.bounds.x), y: Math.round(point.y - display.bounds.y) };
-  sendOverlay('desktop:move', local);
+}
+
+function prepareOverlay(x, y) {
+  if (!settings.get().desktopWheel) return;
+  clearTimeout(hideTimer);
+  const { display, point } = displayFor(x, y);
+  lastPoint = point;
+  activeDisplayId = display.id;
+  const win = positionOverlay(display);
+  if (!overlayReady || win.isDestroyed()) return;
+  // Show a click-through window the moment a file drag starts. OLE needs the
+  // target to exist before the drag begins; it becomes interactive only when
+  // the helper reports that the drag has actually passed the threshold.
+  sendOverlay('desktop:reset', {});
+  win.setAlwaysOnTop(false);
+  win.setIgnoreMouseEvents(true, { forward: true });
+  win.showInactive();
 }
 
 function hideOverlay(delay = 0) {
   clearTimeout(hideTimer);
   const run = () => {
-    if (overlay && !overlay.isDestroyed()) overlay.hide();
+    // Clear the previous drag before hiding so the next show cannot inherit a
+    // stale anchor or file from the last drag.
+    sendOverlay('desktop:reset', {});
+    if (overlay && !overlay.isDestroyed()) {
+      overlay.setIgnoreMouseEvents(true, { forward: true });
+      overlay.setAlwaysOnTop(false);
+      overlay.hide();
+    }
   };
   if (delay) hideTimer = setTimeout(run, delay);
   else run();
@@ -149,31 +208,98 @@ function handleHelperLine(line) {
   let msg;
   try { msg = JSON.parse(line); } catch (_) { return; }
   if (!msg || !msg.type) return;
-  if (msg.type === 'show') showOverlay(msg.mode, msg.x, msg.y);
-  else if (msg.type === 'move') moveOverlay(msg.x, msg.y);
-  else if (msg.type === 'mode') sendOverlay('desktop:mode', { mode: msg.mode });
-  else if (msg.type === 'mouseup') {
+  if (msg.type === 'candidate') {
+    prepareOverlay(msg.x, msg.y);
+  } else if (msg.type === 'show') {
+    showOverlay(msg.mode, msg.x, msg.y);
+  } else if (msg.type === 'move') {
+    moveOverlay(msg.x, msg.y);
+  } else if (msg.type === 'mode') {
+    sendOverlay('desktop:mode', { mode: msg.mode });
+  } else if (msg.type === 'dragenter') {
+    clearTimeout(hideTimer);
+    const point = overlayPoint(msg.x, msg.y);
+    sendOverlay('desktop:dragenter', { paths: Array.isArray(msg.paths) ? msg.paths : [], x: point.x, y: point.y });
+  } else if (msg.type === 'hover') {
+    const point = overlayPoint(msg.x, msg.y);
+    sendOverlay('desktop:hover', { x: point.x, y: point.y });
+  } else if (msg.type === 'leave') {
+    sendOverlay('desktop:leave', {});
+  } else if (msg.type === 'drop') {
+    clearTimeout(hideTimer);
+    const point = overlayPoint(msg.x, msg.y);
+    sendOverlay('desktop:drop', { paths: Array.isArray(msg.paths) ? msg.paths : [], x: point.x, y: point.y });
+    // The renderer normally hides the overlay as soon as it starts the job.
+    // Keep a fallback so a renderer problem cannot leave a topmost window up.
+    hideTimer = setTimeout(() => hideOverlay(), 2500);
+    if (hideTimer.unref) hideTimer.unref();
+  } else if (msg.type === 'mouseup') {
     sendOverlay('desktop:mouseup', {});
-    // Give the OLE drop a moment to reach the overlay, then get out of the way.
-    hideTimer = setTimeout(() => hideOverlay(), 700);
-  } else if (msg.type === 'cancel') cancelOverlay();
+    // Give the native drop a moment to arrive, then get out of the way. A
+    // plain click or a drag without a modifier has no wheel to wait for.
+    hideOverlay(msg.open ? 700 : 40);
+  } else if (msg.type === 'cancel') {
+    cancelOverlay();
+  }
+}
+
+function clearHelperRestart() {
+  if (helperRestartTimer) {
+    clearTimeout(helperRestartTimer);
+    helperRestartTimer = null;
+  }
+}
+
+function scheduleHelperRestart() {
+  if (disposed || helperRestartTimer || !settings.get().desktopWheel) return;
+  const delay = [1000, 2000, 5000, 10000][Math.min(Math.max(helperRestarts - 1, 0), 3)];
+  helperRestartTimer = setTimeout(() => {
+    helperRestartTimer = null;
+    startHelper();
+  }, delay);
+  if (helperRestartTimer.unref) helperRestartTimer.unref();
+}
+
+function handleHelperExit(generation) {
+  if (generation !== helperGeneration) return;
+  const uptime = helperStartedAt ? Date.now() - helperStartedAt : 0;
+  helper = null;
+  helperEnabled = false;
+  helperBuffer = '';
+  helperStartedAt = 0;
+  if (disposed || !settings.get().desktopWheel) return;
+  if (uptime >= 30000) helperRestarts = 0;
+  helperRestarts = Math.min(helperRestarts + 1, 4);
+  scheduleHelperRestart();
 }
 
 function startHelper() {
-  if (helper || helperEnabled) return;
-  helperEnabled = true;
+  if (disposed || helper || helperEnabled) return;
+  if (!settings.get().desktopWheel) return;
+  clearHelperRestart();
   const exe = helperPath();
   if (!fs.existsSync(exe)) {
-    helperEnabled = false;
+    console.error(`Desktop wheel helper not found: ${exe}`);
     return;
   }
+  helperEnabled = true;
+  helperBuffer = '';
+  const generation = ++helperGeneration;
+  let ended = false;
+  const end = () => {
+    if (ended) return;
+    ended = true;
+    handleHelperExit(generation);
+  };
   try {
-    helper = spawn(exe, ['--parent', String(process.pid)], {
+    const proc = spawn(exe, ['--parent', String(process.pid)], {
       windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });
-    helper.stdout.setEncoding('utf8');
-    helper.stdout.on('data', (chunk) => {
+    helper = proc;
+    helperStartedAt = Date.now();
+    proc.stdout.setEncoding('utf8');
+    proc.stdout.on('data', (chunk) => {
       helperBuffer += chunk;
       let index;
       while ((index = helperBuffer.indexOf('\n')) >= 0) {
@@ -182,29 +308,42 @@ function startHelper() {
         handleHelperLine(line);
       }
     });
-    helper.stderr.setEncoding('utf8');
-    helper.stderr.on('data', () => {});
-    helper.on('exit', () => { helper = null; helperEnabled = false; helperBuffer = ''; });
-    helper.on('error', () => { helper = null; helperEnabled = false; });
-  } catch (_) {
+    proc.stderr.setEncoding('utf8');
+    proc.stderr.on('data', () => {});
+    proc.on('exit', end);
+    proc.on('error', end);
+  } catch (err) {
     helper = null;
     helperEnabled = false;
+    helperStartedAt = 0;
+    helperRestarts = Math.min(helperRestarts + 1, 4);
+    scheduleHelperRestart();
+    console.error('Could not start desktop wheel helper:', err);
   }
 }
 
 function stopHelper() {
   helperEnabled = false;
+  helperGeneration += 1;
+  clearHelperRestart();
   if (helper) {
     try { helper.kill(); } catch (_) { /* ignore */ }
     helper = null;
   }
   helperBuffer = '';
+  helperStartedAt = 0;
+}
+
+function restartHelperNow() {
+  helperRestarts = 0;
+  clearHelperRestart();
+  startHelper();
 }
 
 function refresh() {
   if (settings.get().desktopWheel) {
     ensureOverlay();
-    startHelper();
+    restartHelperNow();
   } else {
     stopHelper();
     hideOverlay();
@@ -216,7 +355,7 @@ function setEnabled(enabled) {
   settings.set({ desktopWheel: next });
   if (next) {
     ensureOverlay();
-    startHelper();
+    restartHelperNow();
   } else {
     stopHelper();
     hideOverlay();
@@ -334,6 +473,7 @@ async function desktopConvert(paths, targetExt) {
   const ext = String(targetExt || '').toLowerCase();
   if (!paths.length) return { ok: false, error: 'No files were dropped.' };
   if (!ext) return { ok: false, error: 'No output format was chosen.' };
+  if (busy) return { ok: false, busy: true, error: 'Another desktop job is still running. Wait for it to finish, then try again.' };
   busy = true;
   const total = paths.length;
   showStatus({ state: 'working', title: total > 1 ? `Converting ${total} files` : 'Converting file', subtitle: `${baseName(paths[0])} → ${ext.toUpperCase()}`, progress: 0 });
@@ -369,6 +509,7 @@ async function desktopTool(paths, toolId) {
   const tool = (registry.TOOLS || []).find((t) => t.id === toolId);
   if (!tool) return { ok: false, error: 'That tool is not available.' };
   if (!paths.length) return { ok: false, error: 'No files were dropped.' };
+  if (busy) return { ok: false, busy: true, error: 'Another desktop job is still running. Wait for it to finish, then try again.' };
   const target = paths[0];
   const options = defaultOptions(tool);
   busy = true;
@@ -422,6 +563,7 @@ function register() {
 }
 
 function dispose() {
+  disposed = true;
   clearTimeout(hideTimer);
   clearTimeout(statusTimer);
   stopHelper();
