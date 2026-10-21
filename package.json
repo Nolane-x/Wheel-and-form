@@ -1,6 +1,6 @@
 {
   "name": "wheel-and-form",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Local-first file workshop for Windows. Convert, compress, extract, and transform files without uploading them.",
   "main": "electron/main.js",
   "scripts": {

@@ -24,9 +24,17 @@ internal static class Program
     private const int WM_KEYUP = 0x0101;
     private const int WM_SYSKEYUP = 0x0105;
 
+    // Low-level keyboard hooks report the left/right-specific codes (e.g. VK_LSHIFT)
+    // rather than the generic VK_SHIFT. Keep both sets so every keyboard layout works.
     private const int VK_SHIFT = 0x10;
     private const int VK_CONTROL = 0x11;
     private const int VK_MENU = 0x12;
+    private const int VK_LSHIFT = 0xA0;
+    private const int VK_RSHIFT = 0xA1;
+    private const int VK_LCONTROL = 0xA2;
+    private const int VK_RCONTROL = 0xA3;
+    private const int VK_LMENU = 0xA4;
+    private const int VK_RMENU = 0xA5;
     private const int VK_ESCAPE = 0x1B;
 
     private const uint GA_ROOT = 2;
@@ -397,9 +405,9 @@ internal static class Program
             if (down && _dragging && !_cancelled)
             {
                 string next = null;
-                if (vk == VK_SHIFT) next = "convert";
-                else if (vk == VK_CONTROL) next = "tools";
-                else if (vk == VK_MENU) next = "actions";
+                if (vk == VK_SHIFT || vk == VK_LSHIFT || vk == VK_RSHIFT) next = "convert";
+                else if (vk == VK_CONTROL || vk == VK_LCONTROL || vk == VK_RCONTROL) next = "tools";
+                else if (vk == VK_MENU || vk == VK_LMENU || vk == VK_RMENU) next = "actions";
                 else if (vk == VK_ESCAPE && _wheelOpen)
                 {
                     HideDropForm(false);
