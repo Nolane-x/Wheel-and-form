@@ -10,6 +10,7 @@ const settings = require('./settings');
 const registry = require('./converter/registry');
 const engine = require('./converter/engine');
 const desktop = require('./desktop');
+const updater = require('./updater');
 
 let mainWindow = null;
 let floatWindow = null;
@@ -64,6 +65,7 @@ function createWindow() {
     }
   });
 
+  updater.attach(mainWindow);
   mainWindow.loadFile(path.join(__dirname, '..', 'src', 'index.html'));
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
@@ -111,6 +113,7 @@ if (!lock) {
     desktop.refresh();
     createWindow();
     createTray();
+    updater.start();
     app.on('activate', () => {
       if (!mainWindow) createWindow();
       else showMainWindow();
@@ -591,3 +594,12 @@ ipcMain.handle('app:open-settings-file', () => {
   shell.showItemInFolder(file);
   return { ok: true };
 });
+
+// ---------------------------------------------------------------------------
+// Updates
+// ---------------------------------------------------------------------------
+
+ipcMain.handle('update:get-state', () => updater.getState());
+ipcMain.handle('update:check', (e, manual) => updater.check(Boolean(manual)));
+ipcMain.handle('update:download', () => updater.download());
+ipcMain.handle('update:install', () => updater.install());

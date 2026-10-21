@@ -7,6 +7,7 @@
   const SECTIONS = [
     { id: 'output', label: 'Output', icon: 'folder' },
     { id: 'engines', label: 'Engines', icon: 'cpu' },
+    { id: 'updates', label: 'Updates', icon: 'download' },
     { id: 'about', label: 'About', icon: 'info' }
   ];
 
@@ -187,6 +188,95 @@
       </div>`;
   }
 
+  function updateView(s) {
+    const version = s.version ? `v${s.version}` : '';
+    const current = (app() && app().state.appInfo && app().state.appInfo.version) || s.currentVersion || '';
+    const percent = Math.round(Number(s.percent) || 0);
+    switch (s.status) {
+      case 'checking':
+        return { tone: 'busy', title: 'Checking for updates…', copy: 'Asking GitHub Releases for the newest build.', tag: current ? `v${current}` : '', actions: '', busy: true };
+      case 'available':
+        return { tone: 'ready', title: version ? `${version} is ready` : 'An update is ready', copy: 'Download it now. Nothing changes until you choose to restart.', tag: version, actions: `<button class="mini-action primary" type="button" data-update-download>Download update</button>`, busy: false };
+      case 'downloading':
+        return { tone: 'busy', title: version ? `Downloading ${version}…` : 'Downloading update…', copy: `${percent}% complete. You can keep working while it downloads.`, tag: `${percent}%`, actions: `<button class="mini-action" type="button" disabled>Downloading ${percent}%</button>`, busy: true };
+      case 'downloaded':
+        return { tone: 'ready', title: version ? `${version} is ready to install` : 'Update ready to install', copy: 'Restart Wheel and Form to finish. Your queue, files and settings stay put.', tag: version, actions: `<button class="mini-action primary" type="button" data-update-install>Restart and install</button>`, busy: false };
+      case 'not-available':
+        return { tone: 'ok', title: 'You are up to date', copy: current ? `Version ${current} is the newest build on the stable channel.` : 'This is the newest build on the stable channel.', tag: current ? `v${current}` : '', actions: '', busy: false };
+      case 'error':
+        return { tone: 'bad', title: 'Update check failed', copy: s.error || 'Wheel and Form could not reach the update service. Check your connection and try again.', tag: '', actions: `<button class="mini-action" type="button" data-update-check>Try again</button>`, busy: false };
+      case 'dev':
+        return { tone: 'idle', title: 'Updates run in the installed app', copy: 'This development build does not check for releases. The installed build checks automatically.', tag: 'DEV', actions: '', busy: false };
+      case 'loading':
+        return { tone: 'busy', title: 'Reading update status…', copy: 'One moment.', tag: current ? `v${current}` : '', actions: '', busy: true };
+      default:
+        return { tone: 'idle', title: 'Automatic updates are on', copy: 'Wheel and Form checks at launch and every six hours. Nothing installs without your click.', tag: current ? `v${current}` : '', actions: '', busy: false };
+    }
+  }
+
+  function updatesPane() {
+    const s = (window.UpdateUI && window.UpdateUI.getState()) || { status: 'loading', percent: 0 };
+    const view = updateView(s);
+    const current = (app() && app().state.appInfo && app().state.appInfo.version) || s.currentVersion || '0.2.0';
+    const showProgress = s.status === 'downloading' || s.status === 'downloaded';
+    const percent = Math.round(Number(s.percent) || 0);
+    return `
+      <div class="settings-section" data-update-pane>
+        <div class="settings-head-row">
+          <div>
+            <h3 class="settings-title">App updates</h3>
+            <p class="settings-sub">Wheel and Form can fetch a newer build from GitHub Releases and install it for you.</p>
+          </div>
+          <button class="mini-action" type="button" data-update-check ${view.busy ? 'disabled' : ''}>Check now</button>
+        </div>
+        <div class="update-panel ${view.tone}">
+          <div class="update-panel-top">
+            <span class="update-indicator"></span>
+            <div class="update-panel-copy">
+              <strong data-update-title>${U.escapeHtml(view.title)}</strong>
+              <span data-update-copy>${U.escapeHtml(view.copy)}</span>
+            </div>
+            <span class="update-tag" data-update-tag>${U.escapeHtml(view.tag)}</span>
+          </div>
+          <div class="update-progress" data-update-progress ${showProgress ? '' : 'hidden'}><span data-update-fill style="width:${percent}%"></span></div>
+          <div class="update-actions" data-update-actions>${view.actions}</div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3 class="settings-title">Current build</h3>
+        <div class="about-meta update-meta">
+          <div><span>Version</span><strong>${U.escapeHtml(current)}</strong></div>
+          <div><span>Channel</span><strong>Stable</strong></div>
+          <div><span>Checks</span><strong>Every 6 hours</strong></div>
+        </div>
+        <p class="settings-sub update-note">Downloads are verified against the release checksum before they run. Your files and preferences are never touched by an update.</p>
+      </div>`;
+  }
+
+  function syncUpdatesPane(s) {
+    const pane = $('[data-update-pane]');
+    if (!pane) return;
+    const view = updateView(s);
+    const panel = $('.update-panel', pane);
+    if (panel) panel.className = `update-panel ${view.tone}`;
+    const title = $('[data-update-title]', pane);
+    if (title) title.textContent = view.title;
+    const copy = $('[data-update-copy]', pane);
+    if (copy) copy.textContent = view.copy;
+    const tag = $('[data-update-tag]', pane);
+    if (tag) tag.textContent = view.tag;
+    const percent = Math.round(Number(s.percent) || 0);
+    const progress = $('[data-update-progress]', pane);
+    if (progress) {
+      progress.hidden = !(s.status === 'downloading' || s.status === 'downloaded');
+      const fill = $('[data-update-fill]', pane);
+      if (fill) fill.style.width = `${s.status === 'downloaded' ? 100 : percent}%`;
+    }
+    const actions = $('[data-update-actions]', pane);
+    if (actions) actions.innerHTML = view.actions;
+    document.querySelectorAll('[data-update-check]').forEach((btn) => { btn.disabled = view.busy; });
+  }
+
   function aboutPane() {
     const a = app();
     const info = (a && a.state.appInfo) || {};
@@ -206,6 +296,7 @@
           <div><span>Platform</span><strong>Windows</strong></div>
         </div>
         <div class="about-links">
+          <button class="mini-action" type="button" data-open-updates>Check for updates</button>
           <button class="mini-action" type="button" data-open-settings-file>Show preferences file</button>
         </div>
         <p class="about-fine">Built in the workshop. Your files never leave this PC.</p>
@@ -214,6 +305,7 @@
 
   function paneMarkup() {
     if (section === 'engines') return enginesPane();
+    if (section === 'updates') return updatesPane();
     if (section === 'about') return aboutPane();
     return outputPane();
   }
@@ -291,6 +383,18 @@
       a.state.installing = null;
       if (section === 'engines') renderPane();
       window.AppUI.toast(err.message || `Could not install ${meta.name}.`, 'error');
+    }
+  }
+
+  async function checkUpdates() {
+    if (!window.UpdateUI) return;
+    const result = await window.UpdateUI.check(true);
+    if (result.status === 'not-available') {
+      window.AppUI.toast('You are on the latest version.', 'success');
+    } else if (result.status === 'error') {
+      window.AppUI.toast(result.error || 'Could not check for updates.', 'error');
+    } else if (result.status === 'dev') {
+      window.AppUI.toast('Update checks run in the installed build.', 'info');
     }
   }
 
@@ -383,6 +487,25 @@
         window.AppUI.toast('Engine status refreshed.', 'info');
         return;
       }
+      if (event.target.closest('[data-open-updates]')) {
+        section = 'updates';
+        const a = app();
+        if (a) a.state.settingsSection = section;
+        renderPane();
+        return;
+      }
+      if (event.target.closest('[data-update-check]')) {
+        await checkUpdates();
+        return;
+      }
+      if (event.target.closest('[data-update-download]')) {
+        await window.UpdateUI.download();
+        return;
+      }
+      if (event.target.closest('[data-update-install]')) {
+        await window.UpdateUI.install();
+        return;
+      }
       if (event.target.closest('[data-open-settings-file]')) {
         const res = await api.app.openSettingsFile();
         if (!res || !res.ok) window.AppUI.toast('Could not open the settings folder.', 'error');
@@ -408,6 +531,12 @@
 
   if (api.app && api.app.onOpenSettings) {
     api.app.onOpenSettings(() => open('output'));
+  }
+
+  if (window.UpdateUI) {
+    window.UpdateUI.subscribe((next) => {
+      if (section === 'updates') syncUpdatesPane(next);
+    });
   }
 
   window.SettingsUI = {

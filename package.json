@@ -1,6 +1,6 @@
 {
   "name": "wheel-and-form",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local-first file workshop for Windows. Convert, compress, extract, and transform files without uploading them.",
   "main": "electron/main.js",
   "scripts": {
@@ -8,10 +8,15 @@
     "dev": "electron .",
     "build": "electron-builder",
     "build:win": "electron-builder --win",
+    "release:win": "electron-builder --win --publish always",
     "lint": "echo ok"
   },
   "author": "Wheel and Form contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nolane-x/Wheel-and-form.git"
+  },
   "build": {
     "appId": "com.wheelandform.app",
     "productName": "Wheel and Form",
@@ -34,14 +39,24 @@
       "target": [
         "nsis"
       ],
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "artifactName": "Wheel-and-Form-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Nolane-x",
+        "repo": "Wheel-and-form",
+        "releaseType": "release"
+      }
+    ]
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {

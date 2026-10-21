@@ -13,6 +13,7 @@ Start a drag, hold a key, and finish on a radial wheel. Everything runs on your 
 - **Keyboard-first radial wheel** — `Shift` for formats, `Ctrl` for tools, `Alt` for file actions
 - **System-wide desktop wheel** — start a drag in Explorer or on the desktop, hold a key, and finish on the wheel without opening the app first
 - **Native Windows shell integration** — reveal outputs, open files, copy paths and open a terminal in the file's folder
+- **One-click updates** — the installed app checks GitHub Releases, notifies you when a new build is ready, and installs it after one restart
 
 ### Format families
 
@@ -74,6 +75,8 @@ PDF tools work out of the box. Common raster conversions (PNG/JPG/WEBP/TIFF/GIF)
 
 Download the latest Windows installer from the repository's **Releases** page and run it. The installer lets you choose the destination folder; no administrator account is required for a per-user install.
 
+The installed build checks for updates when it starts and every six hours. When a newer release is available, the title bar and **Settings → Updates** show it; download and restart from there. Updates are verified against the release checksum and never touch your files or preferences.
+
 ## Development
 
 ```bash
@@ -100,7 +103,15 @@ npm run build:win
 Outputs are written to `dist/`:
 
 - `Wheel and Form Setup <version>.exe` — NSIS installer
+- `latest.yml` and blockmap — update metadata used by installed builds
 - unpacked application files for local inspection
+
+To build and publish a release to GitHub in one step:
+
+```bash
+$env:GH_TOKEN = 'github-token-with-repo-scope'
+npm run release:win
+```
 
 The GitHub Actions workflow in `.github/workflows/build.yml` builds the same installer on `windows-latest` and uploads it as an artifact.
 
@@ -112,6 +123,7 @@ electron/
   desktop.js               Desktop overlay, status card, native drag helper
   preload.js               Safe window.api bridge
   settings.js              JSON preferences
+  updater.js               GitHub release checks, download state and install handoff
   converter/
     registry.js            Conversion, tool and action definitions
     engine.js              Engine discovery and process execution
@@ -127,7 +139,8 @@ src/
   wheel.js                 Radial wheel geometry and rendering
   desktop.html/css/js      Transparent system-wide wheel overlay
   desktop-status.*         Progress and result card
-  settings.js              Settings and engine setup
+  settings.js              Settings, engine setup and update status
+  update.js                Title-bar update pill, prompts and one-click actions
   toolmodal.js             Tool options and previews
   float.js                 Floating preview window
 native/
@@ -138,7 +151,9 @@ assets/                    App icon, brand mark and fonts
 
 ## Privacy
 
-Files never leave this PC. Settings and activity are stored locally in the Electron user-data folder. The app makes no network requests except when you explicitly ask it to install an engine through `winget`.
+Files never leave this PC. Settings and activity are stored locally in the Electron user-data folder.
+
+Wheel and Form makes network requests in two cases: checking GitHub Releases for app updates, and installing a conversion engine through `winget` when you ask it to. Update checks read public release metadata; downloads contain only the new app build. No file names, file contents, usage data or personal data are sent.
 
 ## License
 

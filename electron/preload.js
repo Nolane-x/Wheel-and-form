@@ -82,6 +82,14 @@ contextBridge.exposeInMainWorld('api', {
     run: (job) => invoke('tool:run', job)
   },
 
+  update: {
+    getState: () => invoke('update:get-state'),
+    check: (manual) => invoke('update:check', Boolean(manual)),
+    download: () => invoke('update:download'),
+    install: () => invoke('update:install'),
+    onStatus: (cb) => listen('update:status', cb)
+  },
+
   desktop: {
     convert: (payload) => invoke('desktop:convert', payload),
     tool: (payload) => invoke('desktop:tool', payload),
