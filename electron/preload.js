@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld('api', {
     openExternal: (url) => invoke('app:open-external', url),
     clipboardText: (text) => invoke('app:clipboard-text', text),
     openSettingsFile: () => invoke('app:open-settings-file'),
-    onOpenSettings: (cb) => listen('tangerine:open-settings', cb)
+    onOpenSettings: (cb) => listen('wheelandform:open-settings', cb)
   },
 
   registry: {

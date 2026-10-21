@@ -31,9 +31,9 @@ let lastStatus = null;
 let busy = false;
 
 function helperPath() {
-  const packaged = path.join(process.resourcesPath, 'native', 'TangerineDragHook.exe');
+  const packaged = path.join(process.resourcesPath, 'native', 'WheelAndFormDragHook.exe');
   if (app.isPackaged) return packaged;
-  return path.join(__dirname, '..', 'native', 'bin', 'TangerineDragHook.exe');
+  return path.join(__dirname, '..', 'native', 'bin', 'WheelAndFormDragHook.exe');
 }
 
 function dipPoint(x, y) {
@@ -383,7 +383,7 @@ function ensureStatus() {
     fullscreenable: false,
     skipTaskbar: true,
     alwaysOnTop: true,
-    title: 'Tangerine',
+    title: 'Wheel and Form',
     webPreferences: {
       preload: PRELOAD,
       contextIsolation: true,
@@ -556,7 +556,7 @@ function register() {
     return true;
   });
   ipcMain.handle('desktop:open-settings', () => {
-    app.emit('tangerine:open-settings');
+    app.emit('wheelandform:open-settings');
     return true;
   });
   ipcMain.handle('desktop:busy', () => busy);

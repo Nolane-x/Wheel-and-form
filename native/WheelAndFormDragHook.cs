@@ -1,4 +1,4 @@
-// TangerineDragHook
+// WheelAndFormDragHook
 // Watches for a file drag starting in Explorer, the desktop, or a file dialog.
 // When Shift / Ctrl / Alt is pressed during that drag, prints a JSON line that
 // tells the Electron overlay which wheel to show. No input is swallowed except

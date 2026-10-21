@@ -17,10 +17,31 @@ let installProcess = null;
 let tray = null;
 let isQuitting = false;
 
-const APP_NAME = 'Tangerine';
+const APP_NAME = 'Wheel and Form';
 const isDev = process.argv.includes('--dev');
 
-app.setAppUserModelId('com.tangerine.formac');
+app.setName(APP_NAME);
+app.setAppUserModelId('com.wheelandform.app');
+
+function migrateLegacySettings() {
+  const target = path.join(app.getPath('userData'), 'settings.json');
+  if (fs.existsSync(target)) return;
+  const appData = app.getPath('appData');
+  const candidates = [
+    path.join(appData, 'tangerine-clone', 'settings.json'),
+    path.join(appData, 'Tangerine', 'settings.json'),
+    path.join(appData, 'tangerine', 'settings.json')
+  ];
+  const source = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!source) return;
+  try {
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+    console.log(`[Wheel and Form] migrated settings from ${source}`);
+  } catch (err) {
+    console.error('[Wheel and Form] settings migration failed', err);
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -30,7 +51,7 @@ function createWindow() {
     minHeight: 640,
     show: false,
     frame: false,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#E9EBE3',
     title: APP_NAME,
     icon: path.join(__dirname, '..', 'assets', 'icon.ico'),
     roundedCorners: true,
@@ -85,6 +106,7 @@ if (!lock) {
 
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
+    migrateLegacySettings();
     desktop.register();
     desktop.refresh();
     createWindow();
@@ -109,9 +131,9 @@ app.on('before-quit', () => {
   }
 });
 
-app.on('tangerine:open-settings', () => {
+app.on('wheelandform:open-settings', () => {
   showMainWindow();
-  setTimeout(() => mainWindow?.webContents.send('tangerine:open-settings'), 250);
+  setTimeout(() => mainWindow?.webContents.send('wheelandform:open-settings'), 250);
 });
 
 function showMainWindow() {
@@ -126,7 +148,7 @@ function showMainWindow() {
 
 function buildTrayMenu() {
   return Menu.buildFromTemplate([
-    { label: 'Open Tangerine', click: showMainWindow },
+    { label: 'Open Wheel and Form', click: showMainWindow },
     { type: 'separator' },
     {
       label: 'Desktop wheel',
@@ -141,12 +163,12 @@ function buildTrayMenu() {
       label: 'Settings…',
       click: () => {
         showMainWindow();
-        setTimeout(() => mainWindow?.webContents.send('tangerine:open-settings'), 250);
+        setTimeout(() => mainWindow?.webContents.send('wheelandform:open-settings'), 250);
       }
     },
     { type: 'separator' },
     {
-      label: 'Quit Tangerine',
+      label: 'Quit Wheel and Form',
       click: () => {
         isQuitting = true;
         app.quit();
@@ -164,7 +186,7 @@ function createTray() {
   const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
   const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
-  tray.setToolTip('Tangerine — local-first file tools');
+  tray.setToolTip('Wheel and Form — local file workshop');
   tray.setContextMenu(buildTrayMenu());
   tray.on('click', showMainWindow);
 }

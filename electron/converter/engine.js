@@ -312,7 +312,7 @@ async function pickFolderOutput(input, suffix, ctx) {
   return uniqueFolder(dir, base, suffix);
 }
 
-function tempDir(prefix = 'tangerine-') {
+function tempDir(prefix = 'wheelandform-') {
   return fsp.mkdtemp(path.join(os.tmpdir(), prefix));
 }
 
@@ -410,7 +410,7 @@ async function probe(input) {
 
 async function sofficeConvert(input, targetExt, output, actualExt = targetExt) {
   const soffice = requireTool('soffice');
-  const tmp = await tempDir('tangerine-lo-');
+  const tmp = await tempDir('wheelandform-lo-');
   const profile = path.join(tmp, 'profile');
   const outDir = path.join(tmp, 'out');
   await fsp.mkdir(outDir, { recursive: true });
@@ -441,7 +441,7 @@ async function sofficeConvert(input, targetExt, output, actualExt = targetExt) {
 }
 
 async function documentToImages(input, outBase, targetExt, ctx) {
-  const tmp = await tempDir('tangerine-pages-');
+  const tmp = await tempDir('wheelandform-pages-');
   const tmpPdf = path.join(tmp, 'document.pdf');
   try {
     await sofficeConvert(input, 'pdf', tmpPdf, 'pdf');
@@ -499,7 +499,7 @@ async function sevenAdd(format, output, cwd, entries) {
 
 async function repackArchive(input, targetExt, output) {
   const seven = requireTool('7z');
-  const tmp = await tempDir('tangerine-arc-');
+  const tmp = await tempDir('wheelandform-arc-');
   try {
     await sevenExtract(input, tmp);
     const entries = await fsp.readdir(tmp);
@@ -583,7 +583,7 @@ async function executeConversion(job, def) {
   }
 
   if (def.special === 'pdfTextTo') {
-    const tmp = await tempDir('tangerine-pdf-');
+    const tmp = await tempDir('wheelandform-pdf-');
     try {
       const txt = path.join(tmp, `${base}.txt`);
       const status = getToolStatus();
@@ -631,7 +631,7 @@ async function executeConversion(job, def) {
     requireTool('7z');
     const output = await pickFileOutput(input, '', targetExt === 'tgz' ? 'tgz' : targetExt, ctx);
     if (targetExt === 'tgz') {
-      const tmp = await tempDir('tangerine-tgz-');
+      const tmp = await tempDir('wheelandform-tgz-');
       try {
         await sevenExtract(input, tmp);
         await sevenAdd('tgz', output, tmp, ['.']);
@@ -962,7 +962,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
     case 'createPDF': {
       const output = await pickFileOutput(input, suffix, 'pdf', ctx);
       if (kind === 'document') {
-        const tmp = await tempDir('tangerine-createpdf-');
+        const tmp = await tempDir('wheelandform-createpdf-');
         try {
           const tmpPdf = path.join(tmp, 'doc.pdf');
           await sofficeConvert(input, 'pdf', tmpPdf, 'pdf');
@@ -973,7 +973,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
         return finish(output, { output });
       }
       const prepared = [];
-      const tmp = await tempDir('tangerine-createpdf-');
+      const tmp = await tempDir('wheelandform-createpdf-');
       try {
         for (const file of [input, ...extra]) {
           const e = path.extname(file).toLowerCase();
@@ -1064,7 +1064,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
       const files = [input, ...extra];
       if (files.length < 2) throw new Error('Add at least one more video.');
       const output = await pickFileOutput(input, suffix, 'mp4', ctx);
-      const tmp = await tempDir('tangerine-join-');
+      const tmp = await tempDir('wheelandform-join-');
       try {
         const list = path.join(tmp, 'list.txt');
         await fsp.writeFile(list, files.map((f) => `file '${f.replace(/'/g, "'\\''")}'`).join('\n'), 'utf8');
@@ -1128,7 +1128,7 @@ async function runTool(input, toolId, options = {}, ctx = {}, onProgress) {
       const duration = await probeDuration(input);
       await runFfmpeg([
         '-y', '-i', input,
-        '-filter_complex', '[0:a]showwaves=s=1280x720:mode=line:colors=0xF35B28,format=yuv420p[v]',
+        '-filter_complex', '[0:a]showwaves=s=1280x720:mode=line:colors=0x5FE3C1,format=yuv420p[v]',
         '-map', '[v]', '-map', '0:a', '-c:v', 'libx264', '-crf', '20', '-c:a', 'aac', '-b:a', '192k', '-shortest', output
       ], progressParser(duration, pct));
       return finish(output, { output });

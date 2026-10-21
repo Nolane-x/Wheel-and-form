@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Tangerine conversion registry.
+ * Wheel and Form conversion registry.
  * Every conversion is described declaratively so the engine can build a safe
  * argv array (never a shell string) for the matching CLI tool.
  */
@@ -296,7 +296,7 @@ const TOOLS = [
         opt.text('text', 'Caption', '', 'Type a caption…'),
         opt.seg('position', 'Position', 'south', [{ value: 'north', label: 'Top' }, { value: 'center', label: 'Middle' }, { value: 'south', label: 'Bottom' }]),
         opt.seg('size', 'Size', '42', [{ value: '28', label: 'S' }, { value: '42', label: 'M' }, { value: '64', label: 'L' }]),
-        opt.seg('color', 'Color', 'white', [{ value: 'white', label: 'White' }, { value: 'black', label: 'Black' }, { value: '#f35b28', label: 'Orange' }])
+        opt.seg('color', 'Color', 'white', [{ value: 'white', label: 'White' }, { value: 'black', label: 'Black' }, { value: '#c9f45a', label: 'Citron' }])
       ]
     }
   },
@@ -306,7 +306,7 @@ const TOOLS = [
     kinds: ['image'], suffix: ' Background',
     options: {
       image: [
-        opt.seg('color', 'Background', '#ffffff', [{ value: '#ffffff', label: 'White' }, { value: '#f4f4f4', label: 'Cream' }, { value: '#282b29', label: 'Ink' }, { value: '#f35b28', label: 'Orange' }]),
+        opt.seg('color', 'Background', '#ffffff', [{ value: '#ffffff', label: 'White' }, { value: '#f7f6f1', label: 'Paper' }, { value: '#282b29', label: 'Ink' }, { value: '#c9f45a', label: 'Citron' }]),
         opt.range('width', 'Border', 28, 8, 96, 4, 'px')
       ]
     }

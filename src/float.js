@@ -106,7 +106,7 @@
       stage.append(audio);
       return;
     }
-    fallback('Drop it into Tangerine to convert it.');
+    fallback('Drop it into Wheel and Form to convert it.');
   }
 
   async function loadMeta() {

@@ -1,7 +1,7 @@
 {
-  "name": "tangerine-clone",
+  "name": "wheel-and-form",
   "version": "0.1.0",
-  "description": "Local-first file converter, compressor and toolkit for Windows, inspired by Tangerine for Mac",
+  "description": "Local-first file workshop for Windows. Convert, compress, extract, and transform files without uploading them.",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
@@ -10,11 +10,11 @@
     "build:win": "electron-builder --win",
     "lint": "echo ok"
   },
-  "author": "Tangerine for Windows contributors",
+  "author": "Wheel and Form contributors",
   "license": "MIT",
   "build": {
-    "appId": "com.tangerine.clone",
-    "productName": "Tangerine",
+    "appId": "com.wheelandform.app",
+    "productName": "Wheel and Form",
     "directories": {
       "output": "dist"
     },
@@ -26,8 +26,8 @@
     ],
     "extraResources": [
       {
-        "from": "native/bin/TangerineDragHook.exe",
-        "to": "native/TangerineDragHook.exe"
+        "from": "native/bin/WheelAndFormDragHook.exe",
+        "to": "native/WheelAndFormDragHook.exe"
       }
     ],
     "win": {

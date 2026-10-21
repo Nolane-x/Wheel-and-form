@@ -7,24 +7,23 @@
 }
 
 :root {
-  --page: #f4f4f4;
-  --surface: #fff;
-  --surface-2: #f8f8f5;
-  --surface-3: #fcfcfa;
-  --ink: #282b29;
-  --ink-strong: #171917;
-  --ink-soft: #4b504c;
-  --muted: #828782;
-  --muted-light: #a6aba5;
-  --line: #e9ece8;
-  --line-strong: #dfe3de;
-  --orange: #f35b28;
-  --orange-hot: #ff5200;
-  --orange-soft: #fff1ea;
-  --cream: #fff8f4;
-  --green: #2f9e63;
-  --green-soft: #eaf5ee;
-  --red: #c4493a;
+  --page: #e9ebe3;
+  --surface: #f7f6f1;
+  --surface-2: #eff1e8;
+  --surface-3: #fbfaf5;
+  --ink: #111512;
+  --ink-strong: #111512;
+  --ink-soft: #4d554d;
+  --muted: #7b8379;
+  --muted-light: #a6ada2;
+  --line: #cfd4c8;
+  --line-strong: #b6bdaf;
+  --accent: #8db52b;
+  --accent-soft: #edffb0;
+  --accent-ink: #1a2108;
+  --green: #2f8f63;
+  --green-soft: #e4f5ec;
+  --red: #c75243;
   --red-soft: #fdeeea;
   --ease: cubic-bezier(.22, .8, .25, 1);
   --wx: 50vw;
@@ -53,7 +52,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at var(--wx) var(--wy), rgba(36, 28, 21, .16), rgba(36, 28, 21, .04) 190px, transparent 330px);
+  background: radial-gradient(circle at var(--wx) var(--wy), rgba(17, 21, 18, .15), rgba(17, 21, 18, .04) 190px, transparent 330px);
 }
 
 .desk-root {
@@ -171,9 +170,9 @@ body::before {
 }
 
 .wheel-keys .wheel-key.active {
-  border-color: rgba(243, 91, 40, .30);
-  background: rgba(255, 244, 237, .94);
-  color: var(--orange);
+  border-color: rgba(141, 181, 43, .36);
+  background: rgba(245, 255, 212, .94);
+  color: var(--accent);
   opacity: 1;
 }
 
@@ -225,7 +224,7 @@ body::before {
   height: 38px;
   flex: 0 0 38px;
   border-radius: 11px;
-  background: var(--cream);
+  background: var(--surface-2);
   overflow: hidden;
 }
 

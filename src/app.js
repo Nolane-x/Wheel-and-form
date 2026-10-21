@@ -264,7 +264,7 @@
       return `<span class="done-label">Done</span><span class="dot"></span><span class="output-name">${U.escapeHtml(U.baseName(entry.output))}</span>`;
     }
     if (entry.status === 'running') {
-      return `<span class="err-label" style="color:var(--orange)">Converting to ${U.escapeHtml(formatLabel(entry.target))}</span><span class="dot"></span><span class="mono">${entry.progress || 0}%</span>`;
+      return `<span class="err-label" style="color:var(--accent-deep)">Converting to ${U.escapeHtml(formatLabel(entry.target))}</span><span class="dot"></span><span class="mono">${entry.progress || 0}%</span>`;
     }
     if (entry.status === 'queued') {
       return `<span>Waiting to become ${U.escapeHtml(formatLabel(entry.target))}</span>`;
@@ -648,7 +648,7 @@
       state.engineStatus = engineStatus || {};
       state.appInfo = appInfo;
     } catch (err) {
-      AppUI.toast(`Could not start Tangerine: ${err.message}`, 'error');
+      AppUI.toast(`Could not start Wheel and Form: ${err.message}`, 'error');
       return;
     }
     buildIndexes();

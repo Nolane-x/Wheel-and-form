@@ -71,8 +71,8 @@
     const position = values.position || 'south';
     const size = String(values.size || '42');
     const fontSize = size === '28' ? 13 : size === '64' ? 25 : 18;
-    const color = values.color === 'black' ? '#171917' : values.color === '#f35b28' ? '#ffffff' : '#ffffff';
-    const bg = values.color === 'black' ? 'rgba(255,255,255,.78)' : values.color === '#f35b28' ? 'rgba(243,91,40,.92)' : 'rgba(20,22,20,.52)';
+    const color = values.color === 'black' ? '#171917' : values.color === '#c9f45a' ? '#1a2108' : '#ffffff';
+    const bg = values.color === 'black' ? 'rgba(255,255,255,.78)' : values.color === '#c9f45a' ? 'rgba(201,244,90,.92)' : 'rgba(20,22,20,.52)';
     return `<span class="preview-caption pos-${position}" style="font-size:${fontSize}px;color:${color};background:${bg}">${U.escapeHtml(values.text)}</span>`;
   }
 

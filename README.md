@@ -1,10 +1,8 @@
-# Tangerine for Windows
+# Wheel and Form
 
-A local-first file converter, compressor and toolkit for Windows — inspired by [Tangerine for Mac](https://tangerineformac.com/).
+A local-first file workshop for Windows. Convert, compress, extract, and shape files without an account, an upload, or a cloud queue.
 
-Drop a file, hold a key, and pick what you need from a radial wheel. Everything runs on your PC. No account, no upload, no queue in the cloud.
-
-> This is an independent Windows companion/tribute project. It is not affiliated with or endorsed by the original Tangerine app.
+Start a drag, hold a key, and finish on a radial wheel. Everything runs on your PC.
 
 ## What it does
 
@@ -55,11 +53,11 @@ The same wheel works anywhere in Windows. Start dragging a file in Explorer, on 
 
 Outside the app, results are always written beside the original file and the source is never changed. A small status card shows progress, then lets you reveal the result or open engine setup if something is missing.
 
-Closing the main window leaves Tangerine running in the notification area. Right-click the tray icon to reopen it, turn the desktop wheel on or off, open Settings, or quit.
+Closing the main window leaves Wheel and Form running in the notification area. Right-click the tray icon to reopen it, turn the desktop wheel on or off, open Settings, or quit.
 
 ## Requirements
 
-Tangerine detects common conversion engines at runtime. Missing engines can be installed from **Settings → Engines** with `winget`, or you can point the app at an existing executable.
+Wheel and Form detects common conversion engines at runtime. Missing engines can be installed from **Settings → Engines** with `winget`, or you can point the app at an existing executable.
 
 | Engine | Used for | Required? |
 | --- | --- | --- |
@@ -91,7 +89,7 @@ powershell -ExecutionPolicy Bypass -File native/build.ps1
 npm run build:win
 ```
 
-The desktop wheel uses a tiny native helper. It detects global drags and owns the native OLE drop target; Electron only paints the wheel on top. `native/build.ps1` compiles it with the .NET Framework compiler that ships with Windows; the built executable is copied into the installer automatically.
+The desktop wheel uses a small native helper. It detects global drags and owns the native OLE drop target; Electron only paints the wheel on top. `native/build.ps1` compiles it with the .NET Framework compiler that ships with Windows; the built executable is copied into the installer automatically.
 
 ## Build a Windows installer
 
@@ -101,7 +99,7 @@ npm run build:win
 
 Outputs are written to `dist/`:
 
-- `Tangerine Setup <version>.exe` — NSIS installer
+- `Wheel and Form Setup <version>.exe` — NSIS installer
 - unpacked application files for local inspection
 
 The GitHub Actions workflow in `.github/workflows/build.yml` builds the same installer on `windows-latest` and uploads it as an artifact.
@@ -110,30 +108,32 @@ The GitHub Actions workflow in `.github/workflows/build.yml` builds the same ins
 
 ```text
 electron/
-  main.js              Electron window, tray, IPC, file and conversion jobs
-  desktop.js           Desktop overlay, status card, native drag helper
-  preload.js           Safe window.api bridge
-  settings.js          JSON preferences
+  main.js                  Electron window, tray, IPC, file and conversion jobs
+  desktop.js               Desktop overlay, status card, native drag helper
+  preload.js               Safe window.api bridge
+  settings.js              JSON preferences
   converter/
-    registry.js        Conversion, tool and action definitions
-    engine.js          Engine discovery and process execution
-    pdf.js             pdf-lib-backed PDF tools
-    subtitle.js        Subtitle helpers
+    registry.js            Conversion, tool and action definitions
+    engine.js              Engine discovery and process execution
+    pdf.js                 pdf-lib-backed PDF tools
+    subtitle.js            Subtitle helpers
 src/
-  index.html           App shell
-  styles*.css          Light theme, wheel, modal and view styles
-  app.js               Queue, views, stats and activity
-  interactions.js      Wheels, drag/drop, actions and keyboard
-  wheel.js             Radial wheel geometry and rendering
-  desktop.html/css/js  Transparent system-wide wheel overlay
-  desktop-status.*     Progress and result card
-  settings.js          Settings and engine setup
-  toolmodal.js         Tool options and previews
-  float.js             Floating preview window
+  index.html               App shell
+  styles.css               Precision Workshop design system, shell, views and queue
+  styles-wheel.css         Radial wheel and desktop overlay
+  styles-modal.css         Settings and tool dialogs
+  app.js                   Queue, views, stats and activity
+  interactions.js          Wheels, drag/drop, actions and keyboard
+  wheel.js                 Radial wheel geometry and rendering
+  desktop.html/css/js      Transparent system-wide wheel overlay
+  desktop-status.*         Progress and result card
+  settings.js              Settings and engine setup
+  toolmodal.js             Tool options and previews
+  float.js                 Floating preview window
 native/
-  TangerineDragHook.cs Native drag detector and OLE drop target
-  build.ps1            Builds the helper with the Windows .NET compiler
-assets/                Icons, fonts and hero artwork
+  WheelAndFormDragHook.cs  Native drag detector and OLE drop target
+  build.ps1                Builds the helper with the Windows .NET compiler
+assets/                    App icon, brand mark and fonts
 ```
 
 ## Privacy
@@ -142,4 +142,4 @@ Files never leave this PC. Settings and activity are stored locally in the Elect
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Tangerine is a trademark of its respective owner; this project is an independent work.
+MIT. See [LICENSE](LICENSE). Wheel and Form is an independent Windows application.

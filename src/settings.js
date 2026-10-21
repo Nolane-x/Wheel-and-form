@@ -76,7 +76,7 @@
     return `
       <div class="settings-section">
         <h3 class="settings-title">Finished files</h3>
-        <p class="settings-sub">Choose where Tangerine puts everything it makes.</p>
+        <p class="settings-sub">Choose where Wheel and Form puts everything it makes.</p>
         <div class="output-options">
           <label class="radio-row ${mode === 'beside' ? 'active' : ''}" data-output-mode="beside">
             <span class="radio-dot"></span>
@@ -162,7 +162,7 @@
         <div class="settings-head-row">
           <div>
             <h3 class="settings-title">Conversion engines</h3>
-            <p class="settings-sub">Tangerine drives these free tools. Install only the ones you need.</p>
+            <p class="settings-sub">Wheel and Form drives these free tools. Install only the ones you need.</p>
           </div>
           <button class="mini-action" type="button" data-refresh-engines>Check again</button>
         </div>
@@ -180,7 +180,7 @@
         <div class="switch-row">
           <div>
             <strong>Custom install location?</strong>
-            <span>Use Locate to point Tangerine at an existing executable.</span>
+            <span>Use Locate to point Wheel and Form at an existing executable.</span>
           </div>
           <button class="mini-action" type="button" data-open-settings-file>Open settings file</button>
         </div>
@@ -192,9 +192,9 @@
     const info = (a && a.state.appInfo) || {};
     return `
       <div class="settings-about">
-        <img class="about-brand" src="../assets/brand.svg" alt="Tangerine">
-        <h3 class="about-title">Tangerine <span>for Windows</span></h3>
-        <p class="about-copy">A calm, local-first file workshop. Drop a file, pick a format, and keep moving — no uploads, no accounts, no waiting on a browser tab.</p>
+        <img class="about-brand" src="../assets/brand.svg" alt="Wheel and Form">
+        <h3 class="about-title">Wheel <span>and Form</span></h3>
+        <p class="about-copy">A local-first file workshop for Windows. Drop a file, choose a format, and keep moving — no uploads, no accounts, no browser tab.</p>
         <div class="about-badges">
           <span>${U.icon('lock', 11)} Local only</span>
           <span>${U.icon('wand', 11)} 26 tools</span>
@@ -206,10 +206,9 @@
           <div><span>Platform</span><strong>Windows</strong></div>
         </div>
         <div class="about-links">
-          <button class="mini-action" type="button" data-open-url="https://tangerineformac.com">Official Tangerine site</button>
           <button class="mini-action" type="button" data-open-settings-file>Show preferences file</button>
         </div>
-        <p class="about-fine">Built as an independent Windows companion. Your files never leave this PC.</p>
+        <p class="about-fine">Built in the workshop. Your files never leave this PC.</p>
       </div>`;
   }
 
@@ -221,13 +220,13 @@
 
   function modalMarkup() {
     return `
-      <section class="modal-card wide settings-card" role="dialog" aria-modal="true" aria-label="Tangerine settings">
+      <section class="modal-card wide settings-card" role="dialog" aria-modal="true" aria-label="Wheel and Form settings">
         <header class="modal-head">
           ${headIcon()}
           <div class="modal-head-copy">
             <div class="modal-kicker">Preferences</div>
             <h2 class="modal-title">Settings</h2>
-            <p class="modal-desc">Make Tangerine feel like yours. Everything is stored on this PC.</p>
+            <p class="modal-desc">Make Wheel and Form yours. Everything is stored on this PC.</p>
           </div>
           <button class="modal-close" type="button" data-settings-close aria-label="Close settings">${U.icon('x', 15)}</button>
         </header>
