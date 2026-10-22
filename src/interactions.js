@@ -485,7 +485,10 @@
     });
     api.window.onState(({ maximized }) => {
       const btn = document.querySelector('[data-win="max"]');
-      if (btn) btn.title = maximized ? 'Restore' : 'Maximize';
+      if (!btn) return;
+      btn.classList.toggle('restore', maximized);
+      btn.title = maximized ? 'Restore' : 'Maximize';
+      btn.setAttribute('aria-label', maximized ? 'Restore' : 'Maximize');
     });
     const titlebar = $('#titlebar');
     if (titlebar) {

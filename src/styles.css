@@ -451,7 +451,13 @@ svg {
   color: #fff;
 }
 
-.traffic-btn span,
+.traffic-btn span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
 .traffic-btn span::before,
 .traffic-btn span::after {
   position: absolute;
@@ -475,6 +481,25 @@ svg {
   height: 8px;
   border: 1px solid currentColor;
   transform: translate(-50%, -50%);
+}
+
+.traffic-btn.max.restore span::before,
+.traffic-btn.max.restore span::after {
+  width: 8px;
+  height: 7px;
+  border: 1px solid currentColor;
+}
+
+.traffic-btn.max.restore span::before {
+  top: 50%;
+  left: 50%;
+  transform: translate(-30%, -70%);
+}
+
+.traffic-btn.max.restore span::after {
+  top: 50%;
+  left: 50%;
+  transform: translate(-70%, -30%);
 }
 
 .traffic-btn.close span::before,

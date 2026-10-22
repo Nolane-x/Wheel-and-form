@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Wheel and Form">
+  <rect x="0" y="0" width="256" height="256" rx="58" fill="#101512"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="56.5" fill="none" stroke="#2A332C" stroke-width="3"/>
+  <circle cx="128" cy="128" r="86" fill="none" stroke="#F4F1E8" stroke-opacity=".14" stroke-width="1.5"/>
+  <g>
+    <path d="M128 128C136 98 156 78 184 70C188 100 172 124 128 128Z" fill="#D8FF62"/>
+    <path d="M128 128C158 136 178 156 186 184C156 188 132 172 128 128Z" fill="#5FE3C1"/>
+    <path d="M128 128C98 120 78 100 70 72C100 68 124 84 128 128Z" fill="#D8FF62" opacity=".72"/>
+    <path d="M128 128C120 158 100 178 72 186C68 156 84 132 128 128Z" fill="#5FE3C1" opacity=".72"/>
+  </g>
+  <circle cx="128" cy="128" r="23" fill="#101512"/>
+  <circle cx="128" cy="128" r="21.5" fill="none" stroke="#F4F1E8" stroke-width="3"/>
+  <circle cx="128" cy="128" r="8" fill="#D8FF62"/>
+</svg>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wheel and Form — Every format. One turn.</title>
+  <meta name="description" content="A local-first file workshop for Windows. 303 conversions, 26 focused tools, and a system-wide radial wheel. No uploads, no account.">
+  <meta name="theme-color" content="#e9ebe3">
+  <meta property="og:title" content="Wheel and Form — Every format. One turn.">
+  <meta property="og:description" content="Convert, compress, extract and shape files on your own PC. Start a drag, hold a key, finish on the wheel.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nolane-x.github.io/Wheel-and-form/">
+  <meta property="og:image" content="https://nolane-x.github.io/Wheel-and-form/assets/screenshots/wheel.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://nolane-x.github.io/Wheel-and-form/assets/screenshots/wheel.png">
+  <link rel="canonical" href="https://nolane-x.github.io/Wheel-and-form/">
+  <link rel="icon" href="assets/brand.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-i18n="a11y.skip">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Wheel and Form home">
+        <img src="assets/brand.svg" alt="" width="34" height="34">
+        <span class="brand-word">WHEEL<span class="brand-slash">/</span>FORM</span>
+        <span class="brand-tag" data-i18n="brand.tag">FILE WORKSHOP</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#workbench" data-i18n="nav.workbench">Workbench</a>
+        <a href="#formats" data-i18n="nav.formats">Formats</a>
+        <a href="#tools" data-i18n="nav.tools">Tools</a>
+        <a href="#desktop" data-i18n="nav.desktop">Desktop wheel</a>
+        <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
+      </nav>
+
+      <div class="header-actions">
+        <div class="lang-switch" role="group" aria-label="Language" data-i18n-aria="a11y.language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="vi" aria-pressed="false">VI</button>
+          <button type="button" data-lang="ja" aria-pressed="false">JA</button>
+        </div>
+        <a class="btn btn-small" href="https://github.com/Nolane-x/Wheel-and-form/releases/latest" data-download aria-label="Download for Windows" data-i18n-aria="nav.downloadLabel">
+          <span data-i18n="nav.download">Download</span>
+          <span class="btn-arrow" aria-hidden="true">↘</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="eyebrow-mark" aria-hidden="true"></span>
+            <span data-i18n="hero.eyebrow">WINDOWS 10 / 11 · LOCAL-FIRST FILE WORKSHOP</span>
+          </div>
+          <h1>
+            <span data-i18n="hero.title1">Every format.</span><br>
+            <span class="hero-turn" data-i18n="hero.title2">One turn.</span>
+          </h1>
+          <p class="hero-lede" data-i18n="hero.lede">Convert, compress, extract and shape files on your own PC. Start a drag, hold a key, and finish on the wheel — without an upload, an account, or a queue in someone else’s cloud.</p>
+          <div class="hero-actions">
+            <a class="btn" href="https://github.com/Nolane-x/Wheel-and-form/releases/latest" data-download>
+              <span data-i18n="hero.download">Download for Windows</span>
+              <span class="btn-arrow" aria-hidden="true">↘</span>
+            </a>
+            <a class="btn btn-ghost" href="#workbench">
+              <span data-i18n="hero.explore">Explore the workbench</span>
+              <span class="btn-arrow" aria-hidden="true">↓</span>
+            </a>
+          </div>
+          <dl class="hero-metrics">
+            <div><dt>303</dt><dd data-i18n="metric.routes">conversion routes</dd></div>
+            <div><dt>53 / 39</dt><dd data-i18n="metric.formats">in / out formats</dd></div>
+            <div><dt>26</dt><dd data-i18n="metric.tools">focused tools</dd></div>
+            <div><dt>0</dt><dd data-i18n="metric.uploads">uploads</dd></div>
+          </dl>
+        </div>
+
+        <figure class="hero-plate plate">
+          <div class="plate-bar">
+            <span data-i18n="hero.plate">PLATE 01 — WORKBENCH</span>
+            <span class="plate-key">LOCAL</span>
+          </div>
+          <div class="plate-image">
+            <img src="assets/screenshots/workbench-body.png" alt="The Wheel and Form workbench with three files queued" width="1600" height="918" data-i18n-alt="alt.hero">
+          </div>
+          <figcaption>
+            <span data-i18n="hero.caption">Three files. Three destinations. Every result beside its source.</span>
+            <span class="plate-live" data-version>v0.2.3</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>CONVERT</span><span>·</span><span>COMPRESS</span><span>·</span><span>EXTRACT</span><span>·</span><span>CROP</span><span>·</span><span>TRIM</span><span>·</span><span>MERGE</span><span>·</span><span>REDACT</span><span>·</span><span>SNAPSHOT</span><span>·</span><span>ORGANIZE</span><span>·</span>
+        <span>CONVERT</span><span>·</span><span>COMPRESS</span><span>·</span><span>EXTRACT</span><span>·</span><span>CROP</span><span>·</span><span>TRIM</span><span>·</span><span>MERGE</span><span>·</span><span>REDACT</span><span>·</span><span>SNAPSHOT</span><span>·</span><span>ORGANIZE</span><span>·</span>
+      </div>
+    </div>
+
+    <section class="section grammar" aria-labelledby="grammar-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker" data-i18n="grammar.kicker">THE GRAMMAR</p>
+          <div>
+            <h2 id="grammar-title" data-i18n="grammar.title">Three keys. One wheel. No menus to hunt through.</h2>
+            <p class="section-lede" data-i18n="grammar.lede">Wheel and Form turns the modifiers you already hold into one consistent file language. The same wheel appears inside the workbench and across Windows.</p>
+          </div>
+        </div>
+
+        <div class="grammar-grid">
+          <div class="radial-wrap">
+            <div class="radial" role="img" aria-label="Radial wheel with format, tool and action destinations">
+              <div class="radial-ring ring-a"></div>
+              <div class="radial-ring ring-b"></div>
+              <div class="radial-cross" aria-hidden="true"></div>
+              <span class="radial-node" style="--a:-90deg">PDF</span>
+              <span class="radial-node" style="--a:-45deg">JPG</span>
+              <span class="radial-node" style="--a:0deg">WEBP</span>
+              <span class="radial-node" style="--a:45deg">MP4</span>
+              <span class="radial-node" style="--a:90deg">MP3</span>
+              <span class="radial-node" style="--a:135deg">ZIP</span>
+              <span class="radial-node" style="--a:180deg">CROP</span>
+              <span class="radial-node" style="--a:225deg">TRIM</span>
+              <div class="radial-center">
+                <span class="radial-word">WHEEL<br><em>/FORM</em></span>
+                <span class="radial-sub" data-i18n="grammar.centre">LOCAL WORKBENCH</span>
+              </div>
+            </div>
+            <p class="radial-note" data-i18n="grammar.note">The wheel follows the cursor. Choose with a flick; release to commit.</p>
+          </div>
+
+          <div class="grammar-list">
+            <article class="grammar-item">
+              <div class="key-row"><kbd>SHIFT</kbd><span class="grammar-index">01</span></div>
+              <h3 data-i18n="grammar.formats">Formats</h3>
+              <p data-i18n="grammar.formatsCopy">303 conversion routes across images, documents, audio, video, ebooks, data and archives.</p>
+            </article>
+            <article class="grammar-item">
+              <div class="key-row"><kbd>CTRL</kbd><span class="grammar-index">02</span></div>
+              <h3 data-i18n="grammar.tools">Tools</h3>
+              <p data-i18n="grammar.toolsCopy">26 focused operations: crop, annotate, redact, compress, trim, normalize, split, merge, extract and more.</p>
+            </article>
+            <article class="grammar-item">
+              <div class="key-row"><kbd>ALT</kbd><span class="grammar-index">03</span></div>
+              <h3 data-i18n="grammar.actions">Actions</h3>
+              <p data-i18n="grammar.actionsCopy">Six file actions that stay close to the work: share/copy, preview, duplicate, move, copy path and open terminal.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section workbench" id="workbench" aria-labelledby="workbench-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker"><span class="kicker-number">01</span><span data-i18n="workbench.kicker">WORKBENCH</span></p>
+          <div>
+            <h2 id="workbench-title" data-i18n="workbench.title">Drop a file. See every exit.</h2>
+            <p class="section-lede" data-i18n="workbench.lede">Queue a mixed batch, set a destination per file, and convert. Outputs land beside the source by default, so the file you started with never moves.</p>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-copy">
+            <ul class="tick-list">
+              <li data-i18n="workbench.bullet1">Mixed batches: images, PDFs, documents, audio, video and archives in one queue.</li>
+              <li data-i18n="workbench.bullet2">Per-file targets. No global mode to reset between files.</li>
+              <li data-i18n="workbench.bullet3">Real progress, explicit errors and a work log you can read.</li>
+              <li data-i18n="workbench.bullet4">Open, reveal or share a finished file without leaving the bench.</li>
+            </ul>
+            <p class="aside-note" data-i18n="workbench.note">The original is never overwritten. Every operation writes a new file.</p>
+          </div>
+          <figure class="plate">
+            <div class="plate-bar"><span data-i18n="workbench.plate">PLATE 02 — WORK QUEUE</span><span>LOCAL / 100%</span></div>
+            <div class="plate-image"><img src="assets/screenshots/conversion-done.png" alt="Three files queued in Wheel and Form, with one PNG converted to BMP" width="1600" height="1000" loading="lazy" data-i18n-alt="alt.workbench"></div>
+            <figcaption data-i18n="workbench.caption">Three files in. One already converted. The rest wait at their own destinations.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section formats dark" id="formats" aria-labelledby="formats-title">
+      <div class="formats-ghost" aria-hidden="true">303</div>
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker"><span class="kicker-number">02</span><span data-i18n="formats.kicker">FORMAT INDEX</span></p>
+          <div>
+            <h2 id="formats-title" data-i18n="formats.title">303 ways out of the same file.</h2>
+            <p class="section-lede" data-i18n="formats.lede">A living index of 53 input and 39 output formats, grouped by family. Search it, filter it, or let the wheel surface the likely targets first.</p>
+          </div>
+        </div>
+
+        <div class="format-stats">
+          <div><strong>303</strong><span data-i18n="formats.routes">conversion routes</span></div>
+          <div><strong>53</strong><span data-i18n="formats.inputs">input formats</span></div>
+          <div><strong>39</strong><span data-i18n="formats.outputs">output formats</span></div>
+          <div><strong>10</strong><span data-i18n="formats.families">format families</span></div>
+        </div>
+
+        <figure class="plate plate-on-dark">
+          <div class="plate-bar"><span data-i18n="formats.plate">PLATE 03 — CONVERSION INDEX</span><span>PDF / DOCX / PNG / MP4 / MP3 / ZIP</span></div>
+          <div class="plate-image"><img src="assets/screenshots/formats.png" alt="The Wheel and Form conversion index with format families and output tiles" width="1600" height="1000" loading="lazy" data-i18n-alt="alt.formats"></div>
+          <figcaption data-i18n="formats.caption">Every route is visible. The wheel is a shortcut, not a locked door.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section tools" id="tools" aria-labelledby="tools-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker"><span class="kicker-number">03</span><span data-i18n="tools.kicker">TOOLBENCH</span></p>
+          <div>
+            <h2 id="tools-title" data-i18n="tools.title">The small operations that finish the job.</h2>
+            <p class="section-lede" data-i18n="tools.lede">26 focused tools for the last mile. Each one runs locally, previews the result, and leaves the original untouched.</p>
+          </div>
+        </div>
+
+        <div class="feature-grid reverse">
+          <figure class="plate">
+            <div class="plate-bar"><span data-i18n="tools.plate">PLATE 04 — CROP</span><span>TOOL / IMAGE</span></div>
+            <div class="plate-image"><img src="assets/screenshots/tool-crop.png" alt="The Crop tool in Wheel and Form with a live image preview and aspect ratio controls" width="1600" height="1000" loading="lazy" data-i18n-alt="alt.crop"></div>
+            <figcaption data-i18n="tools.caption">Crop with a live preview. Ratio, anchor, then run — no destructive edit.</figcaption>
+          </figure>
+          <div class="feature-copy">
+            <div class="tool-chips" aria-label="Selected tools">
+              <span data-i18n="tools.chip1">Compress</span><span data-i18n="tools.chip2">Crop</span><span data-i18n="tools.chip3">Annotate</span><span data-i18n="tools.chip4">Redact</span><span data-i18n="tools.chip5">Trim</span><span data-i18n="tools.chip6">Mute</span><span data-i18n="tools.chip7">Normalize</span><span data-i18n="tools.chip8">Snapshot</span><span data-i18n="tools.chip9">Split PDF</span><span data-i18n="tools.chip10">Organize</span><span data-i18n="tools.chip11">Extract</span><span data-i18n="tools.chip12">Create PDF</span>
+            </div>
+            <ul class="tick-list">
+              <li data-i18n="tools.bullet1">Image, video, audio, PDF, document and archive tools in one bench.</li>
+              <li data-i18n="tools.bullet2">Preview controls before anything is written.</li>
+              <li data-i18n="tools.bullet3">Outputs carry a new name. The source stays intact.</li>
+            </ul>
+            <p class="aside-note" data-i18n="tools.note">Need the full list? The workbench shows all 26 with the formats each one accepts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section desktop dark" id="desktop" aria-labelledby="desktop-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker"><span class="kicker-number">04</span><span data-i18n="desktop.kicker">SYSTEM-WIDE</span></p>
+          <div>
+            <h2 id="desktop-title" data-i18n="desktop.title">The wheel follows you out of the app.</h2>
+            <p class="section-lede" data-i18n="desktop.lede">Open Explorer. Start dragging a file. Hold Shift, Ctrl or Alt. The wheel appears at the cursor; choose a destination and release. No app window. No context switch.</p>
+          </div>
+        </div>
+
+        <figure class="plate plate-on-dark desktop-plate">
+          <div class="plate-bar"><span data-i18n="desktop.plate">PLATE 05 — REAL CAPTURE / WINDOWS 11 EXPLORER</span><span data-i18n="desktop.live">LIVE DRAG</span></div>
+          <div class="plate-image"><img src="assets/screenshots/desktop-wheel-crop.png" alt="The Wheel and Form radial wheel open over Windows Explorer during a real file drag" width="1000" height="560" loading="lazy" data-i18n-alt="alt.desktop"></div>
+          <figcaption data-i18n="desktop.caption">A real drag in Explorer. Shift opens formats; the wheel finishes the drop.</figcaption>
+        </figure>
+
+        <ol class="steps">
+          <li><span class="step-number">01</span><h3 data-i18n="desktop.step1">Start a drag</h3><p data-i18n="desktop.step1Copy">Grab a file on the desktop or in Explorer as you normally would.</p></li>
+          <li><span class="step-number">02</span><h3 data-i18n="desktop.step2">Hold a key</h3><p data-i18n="desktop.step2Copy">Shift for formats, Ctrl for tools, Alt for file actions.</p></li>
+          <li><span class="step-number">03</span><h3 data-i18n="desktop.step3">Finish on the wheel</h3><p data-i18n="desktop.step3Copy">Flick to a destination and release. The output lands beside the source.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section trust" id="privacy" aria-labelledby="privacy-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker"><span class="kicker-number">05</span><span data-i18n="privacy.kicker">THE LOCAL RULE</span></p>
+          <div>
+            <h2 id="privacy-title" data-i18n="privacy.title">Your files never leave the room.</h2>
+            <p class="section-lede" data-i18n="privacy.lede">No account. No upload. No server-side queue. Conversion, tools and previews run on your machine. The only network calls are the update check you can see and engine installs you start yourself.</p>
+          </div>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-copy">
+            <div class="trust-row">
+              <span class="trust-index">A</span>
+              <div><h3 data-i18n="privacy.row1">Beside the original</h3><p data-i18n="privacy.row1Copy">The default output mode writes the new file next to its source. One folder, one tidy result.</p></div>
+            </div>
+            <div class="trust-row">
+              <span class="trust-index">B</span>
+              <div><h3 data-i18n="privacy.row2">Original untouched</h3><p data-i18n="privacy.row2Copy">Every conversion and tool writes a new file. Nothing overwrites the input.</p></div>
+            </div>
+            <div class="trust-row">
+              <span class="trust-index">C</span>
+              <div><h3 data-i18n="privacy.row3">Your engines</h3><p data-i18n="privacy.row3Copy">Use detected tools or point the app at an existing executable. Missing engines are optional.</p></div>
+            </div>
+            <div class="trust-row">
+              <span class="trust-index">D</span>
+              <div><h3 data-i18n="privacy.row4">Transparent network</h3><p data-i18n="privacy.row4Copy">GitHub update checks and optional engine installs. Your files are never part of either.</p></div>
+            </div>
+            <p class="aside-note" data-i18n="privacy.note">Settings live in a small JSON file on this PC. No telemetry is sent.</p>
+            <div class="trust-manifesto">
+              <p class="manifesto-line" data-i18n="privacy.manifesto1">The file stays.</p>
+              <p class="manifesto-line" data-i18n="privacy.manifesto2">The work moves.</p>
+              <p class="manifesto-note" data-i18n="privacy.manifestoNote">No upload. No account. No server queue.</p>
+            </div>
+            <div class="network-ledger">
+              <p class="ledger-title" data-i18n="privacy.ledgerTitle">NETWORK LEDGER</p>
+              <div class="ledger-row"><span data-i18n="privacy.ledgerFiles">Your files — never sent</span><span class="ledger-mark">—</span></div>
+              <div class="ledger-row"><span data-i18n="privacy.ledgerGithub">GitHub — update check only</span><span class="ledger-mark">↗</span></div>
+              <div class="ledger-row"><span data-i18n="privacy.ledgerWinget">winget — optional engine installs</span><span class="ledger-mark">↗</span></div>
+            </div>
+          </div>
+
+          <div class="shot-stack">
+            <figure class="plate">
+              <div class="plate-bar"><span data-i18n="privacy.plate1">PLATE 06 — OUTPUT</span><span>SETTINGS / LOCAL</span></div>
+              <div class="plate-image"><img src="assets/screenshots/settings-output.png" alt="Output settings with Next to the original selected" width="1600" height="1000" loading="lazy" data-i18n-alt="alt.settingsOutput"></div>
+            </figure>
+            <figure class="plate">
+              <div class="plate-bar"><span data-i18n="privacy.plate2">PLATE 07 — ENGINES</span><span>OPTIONAL / LOCAL</span></div>
+              <div class="plate-image"><img src="assets/screenshots/settings-engines.png" alt="Conversion engine status showing FFmpeg, Pandoc and 7-Zip ready and optional engines missing" width="1600" height="1000" loading="lazy" data-i18n-alt="alt.settingsEngines"></div>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section updates" id="updates" aria-labelledby="updates-title">
+      <div class="section-inner updates-grid">
+        <div>
+          <p class="kicker"><span class="kicker-number">06</span><span data-i18n="updates.kicker">UPDATES</span></p>
+          <h2 id="updates-title" data-i18n="updates.title">A new build, one restart away.</h2>
+        </div>
+        <div class="updates-copy">
+          <p class="section-lede" data-i18n="updates.lede">The installed app checks GitHub Releases, verifies the download against the release checksum, and installs on restart. Your files and preferences stay where they are.</p>
+          <div class="update-line">
+            <span class="update-dot" aria-hidden="true"></span>
+            <span data-i18n="updates.current">Current release</span>
+            <strong data-version>v0.2.3</strong>
+            <a href="https://github.com/Nolane-x/Wheel-and-form/releases/latest" data-i18n="updates.notes">Release notes</a>
+          </div>
+          <p class="aside-note" data-i18n="updates.note">The check is visible and can be run on demand from Settings → Updates. Updates are signed by checksum, not by a code-signing certificate.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section faq" aria-labelledby="faq-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="kicker" data-i18n="faq.kicker">QUESTIONS</p>
+          <div><h2 id="faq-title" data-i18n="faq.title">Before you install.</h2></div>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary data-i18n="faq.q1">Is Wheel and Form free?</summary>
+            <p data-i18n="faq.a1">Yes. It is MIT licensed. The installer is not code-signed, so Windows SmartScreen may ask you to confirm the first launch.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq.q2">Does it upload my files?</summary>
+            <p data-i18n="faq.a2">No. Conversion, tools and previews run locally. The app contacts GitHub for update checks; optional engine installs use winget. Your files are never sent to either service.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq.q3">What do I need to run it?</summary>
+            <p data-i18n="faq.a3">Windows 10 or 11. FFmpeg, Pandoc and 7-Zip are detected automatically. ImageMagick, LibreOffice and Ghostscript add optional routes and can be installed from Settings → Engines.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq.q4">Can I keep outputs somewhere else?</summary>
+            <p data-i18n="faq.a4">Yes. Choose beside the original, one folder you pick, or ask every time. The default is beside the source.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq.q5">Does the desktop wheel work in Explorer?</summary>
+            <p data-i18n="faq.a5">Yes. Enable Desktop wheel in Settings, then start a normal file drag on the desktop or in Explorer and hold Shift, Ctrl or Alt.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq.q6">How do updates work?</summary>
+            <p data-i18n="faq.a6">The installed app checks GitHub Releases, verifies the download checksum, and offers a one-click install. The app restarts to finish the update.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="download" id="download" aria-labelledby="download-title">
+      <div class="section-inner download-grid">
+        <div>
+          <p class="kicker" data-i18n="download.kicker">READY WHEN YOU ARE</p>
+          <h2 id="download-title" data-i18n="download.title">Put the workshop on your desktop.</h2>
+        </div>
+        <div class="download-copy">
+          <p data-i18n="download.lede">Windows 10 / 11 · native installer · local-first by default.</p>
+          <div class="download-actions">
+            <a class="btn btn-dark" href="https://github.com/Nolane-x/Wheel-and-form/releases/latest" data-download>
+              <span data-i18n="download.button">Download latest release</span>
+              <span class="btn-arrow" aria-hidden="true">↘</span>
+            </a>
+            <a class="btn btn-outline" href="https://github.com/Nolane-x/Wheel-and-form">
+              <span data-i18n="download.source">View source</span>
+              <span class="btn-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <p class="fine-print"><span data-version>v0.2.3</span> · <span data-i18n="download.fine">MIT licensed. Unsigned build; SmartScreen may ask for confirmation.</span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/brand.svg" alt="" width="38" height="38">
+        <div>
+          <strong>WHEEL<span>/</span>FORM</strong>
+          <p data-i18n="footer.tagline">A local-first file workshop for Windows.</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div>
+          <span class="footer-label" data-i18n="footer.product">PRODUCT</span>
+          <a href="#workbench" data-i18n="nav.workbench">Workbench</a>
+          <a href="#formats" data-i18n="nav.formats">Formats</a>
+          <a href="#tools" data-i18n="nav.tools">Tools</a>
+          <a href="#desktop" data-i18n="nav.desktop">Desktop wheel</a>
+        </div>
+        <div>
+          <span class="footer-label" data-i18n="footer.project">PROJECT</span>
+          <a href="https://github.com/Nolane-x/Wheel-and-form">GitHub</a>
+          <a href="https://github.com/Nolane-x/Wheel-and-form/releases" data-i18n="footer.releases">Releases</a>
+          <a href="https://github.com/Nolane-x/Wheel-and-form#readme" data-i18n="footer.readme">README</a>
+          <a href="https://github.com/Nolane-x/Wheel-and-form/blob/main/LICENSE" data-i18n="footer.license">License</a>
+        </div>
+        <div>
+          <span class="footer-label" data-i18n="footer.language">LANGUAGE</span>
+          <button type="button" data-lang="en">English</button>
+          <button type="button" data-lang="vi">Tiếng Việt</button>
+          <button type="button" data-lang="ja">日本語</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© <span data-year>2026</span> Wheel and Form</span>
+      <span data-i18n="footer.local">BUILT FOR WINDOWS · KEPT ON YOUR MACHINE</span>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

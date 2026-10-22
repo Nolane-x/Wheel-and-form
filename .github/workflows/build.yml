@@ -20,5 +20,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tangerine-windows
+          name: wheel-and-form-windows
           path: dist/*.exe
