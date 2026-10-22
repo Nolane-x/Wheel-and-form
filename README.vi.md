@@ -12,7 +12,12 @@
 <p align="center">
   <a href="README.md">English</a> ·
   <strong>Tiếng Việt</strong> ·
-  <a href="README.ja.md">日本語</a>
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh.md">简体中文</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.de.md">Deutsch</a>
 </p>
 
 <p align="center">
@@ -20,6 +25,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-111512?style=flat-square" alt="Windows 10 và 11">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Nolane-x/Wheel-and-form?style=flat-square&amp;color=d6f542&amp;labelColor=111512" alt="Giấy phép MIT"></a>
   <img src="https://img.shields.io/badge/processing-local-d6f542?style=flat-square&amp;labelColor=111512" alt="Xử lý cục bộ">
+  <img src="https://img.shields.io/badge/languages-8-d6f542?style=flat-square&amp;labelColor=111512" alt="8 languages">
 </p>
 
 <p align="center">
@@ -231,7 +237,7 @@ assets/                    Biểu tượng ứng dụng, dấu thương hiệu v
 
 ## Trang sản phẩm
 
-Trang tĩnh nằm trong [`site/`](site/) và được triển khai bởi `.github/workflows/deploy-pages.yml`. Trang dùng cùng hệ thống thiết kế Precision Workshop, ảnh chụp ứng dụng thật và nội dung tiếng Anh, tiếng Việt và tiếng Nhật.
+Trang tĩnh nằm trong [`site/`](site/) và được triển khai bởi `.github/workflows/deploy-pages.yml`. Trang dùng cùng hệ thống thiết kế Precision Workshop, ảnh chụp ứng dụng thật và tám ngôn ngữ: tiếng Anh, tiếng Việt, tiếng Nhật, tiếng Trung giản thể, tiếng Hàn, tiếng Tây Ban Nha, tiếng Pháp và tiếng Đức.
 
 Để xem trước cục bộ:
 
@@ -251,5 +257,10 @@ MIT. Xem [LICENSE](LICENSE). Wheel and Form là một ứng dụng Windows độ
   <a href="README.md">English</a> ·
   <strong>Tiếng Việt</strong> ·
   <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh.md">简体中文</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.de.md">Deutsch</a> ·
   <a href="https://github.com/Nolane-x/Wheel-and-form">GitHub</a>
 </p>

@@ -9,11 +9,29 @@
   <meta property="og:title" content="Wheel and Form — Every format. One turn.">
   <meta property="og:description" content="Convert, compress, extract and shape files on your own PC. Start a drag, hold a key, finish on the wheel.">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Wheel and Form">
   <meta property="og:url" content="https://nolane-x.github.io/Wheel-and-form/">
   <meta property="og:image" content="https://nolane-x.github.io/Wheel-and-form/assets/screenshots/wheel.png">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="vi_VN">
+  <meta property="og:locale:alternate" content="ja_JP">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:locale:alternate" content="ko_KR">
+  <meta property="og:locale:alternate" content="es_ES">
+  <meta property="og:locale:alternate" content="fr_FR">
+  <meta property="og:locale:alternate" content="de_DE">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://nolane-x.github.io/Wheel-and-form/assets/screenshots/wheel.png">
   <link rel="canonical" href="https://nolane-x.github.io/Wheel-and-form/">
+  <link rel="alternate" hreflang="en" href="https://nolane-x.github.io/Wheel-and-form/?lang=en">
+  <link rel="alternate" hreflang="vi" href="https://nolane-x.github.io/Wheel-and-form/?lang=vi">
+  <link rel="alternate" hreflang="ja" href="https://nolane-x.github.io/Wheel-and-form/?lang=ja">
+  <link rel="alternate" hreflang="zh" href="https://nolane-x.github.io/Wheel-and-form/?lang=zh">
+  <link rel="alternate" hreflang="ko" href="https://nolane-x.github.io/Wheel-and-form/?lang=ko">
+  <link rel="alternate" hreflang="es" href="https://nolane-x.github.io/Wheel-and-form/?lang=es">
+  <link rel="alternate" hreflang="fr" href="https://nolane-x.github.io/Wheel-and-form/?lang=fr">
+  <link rel="alternate" hreflang="de" href="https://nolane-x.github.io/Wheel-and-form/?lang=de">
+  <link rel="alternate" hreflang="x-default" href="https://nolane-x.github.io/Wheel-and-form/">
   <link rel="icon" href="assets/brand.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin>
@@ -39,10 +57,17 @@
       </nav>
 
       <div class="header-actions">
-        <div class="lang-switch" role="group" aria-label="Language" data-i18n-aria="a11y.language">
-          <button type="button" data-lang="en" aria-pressed="true">EN</button>
-          <button type="button" data-lang="vi" aria-pressed="false">VI</button>
-          <button type="button" data-lang="ja" aria-pressed="false">JA</button>
+        <div class="lang-picker">
+          <select id="langSelect" aria-label="Language" data-i18n-aria="a11y.language">
+            <option value="en" lang="en">EN · English</option>
+            <option value="vi" lang="vi">VI · Tiếng Việt</option>
+            <option value="ja" lang="ja">JA · 日本語</option>
+            <option value="zh" lang="zh">ZH · 简体中文</option>
+            <option value="ko" lang="ko">KO · 한국어</option>
+            <option value="es" lang="es">ES · Español</option>
+            <option value="fr" lang="fr">FR · Français</option>
+            <option value="de" lang="de">DE · Deutsch</option>
+          </select>
         </div>
         <a class="btn btn-small" href="https://github.com/Nolane-x/Wheel-and-form/releases/latest" data-download aria-label="Download for Windows" data-i18n-aria="nav.downloadLabel">
           <span data-i18n="nav.download">Download</span>
@@ -429,9 +454,14 @@
         </div>
         <div>
           <span class="footer-label" data-i18n="footer.language">LANGUAGE</span>
-          <button type="button" data-lang="en">English</button>
-          <button type="button" data-lang="vi">Tiếng Việt</button>
-          <button type="button" data-lang="ja">日本語</button>
+          <button type="button" data-lang="en" lang="en">English</button>
+          <button type="button" data-lang="vi" lang="vi">Tiếng Việt</button>
+          <button type="button" data-lang="ja" lang="ja">日本語</button>
+          <button type="button" data-lang="zh" lang="zh">简体中文</button>
+          <button type="button" data-lang="ko" lang="ko">한국어</button>
+          <button type="button" data-lang="es" lang="es">Español</button>
+          <button type="button" data-lang="fr" lang="fr">Français</button>
+          <button type="button" data-lang="de" lang="de">Deutsch</button>
         </div>
       </div>
     </div>
@@ -441,6 +471,11 @@
     </div>
   </footer>
 
+  <script src="i18n/zh.js" defer></script>
+  <script src="i18n/ko.js" defer></script>
+  <script src="i18n/es.js" defer></script>
+  <script src="i18n/fr.js" defer></script>
+  <script src="i18n/de.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

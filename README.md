@@ -12,7 +12,12 @@
 <p align="center">
   <strong>English</strong> ·
   <a href="README.vi.md">Tiếng Việt</a> ·
-  <a href="README.ja.md">日本語</a>
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh.md">简体中文</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.de.md">Deutsch</a>
 </p>
 
 <p align="center">
@@ -20,6 +25,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-111512?style=flat-square" alt="Windows 10 and 11">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Nolane-x/Wheel-and-form?style=flat-square&amp;color=d6f542&amp;labelColor=111512" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/processing-local-d6f542?style=flat-square&amp;labelColor=111512" alt="Local processing">
+  <img src="https://img.shields.io/badge/languages-8-d6f542?style=flat-square&amp;labelColor=111512" alt="8 languages">
 </p>
 
 <p align="center">
@@ -231,7 +237,7 @@ assets/                    App icon, brand mark and fonts
 
 ## Product site
 
-The static site lives in [`site/`](site/) and is deployed by `.github/workflows/deploy-pages.yml`. It uses the same Precision Workshop design system, real app screenshots and English, Vietnamese and Japanese copy.
+The static site lives in [`site/`](site/) and is deployed by `.github/workflows/deploy-pages.yml`. It uses the same Precision Workshop design system, real app screenshots and eight languages: English, Vietnamese, Japanese, Simplified Chinese, Korean, Spanish, French and German.
 
 To preview it locally:
 
@@ -251,5 +257,10 @@ MIT. See [LICENSE](LICENSE). Wheel and Form is an independent Windows applicatio
   <strong>English</strong> ·
   <a href="README.vi.md">Tiếng Việt</a> ·
   <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh.md">简体中文</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.de.md">Deutsch</a> ·
   <a href="https://github.com/Nolane-x/Wheel-and-form">GitHub</a>
 </p>

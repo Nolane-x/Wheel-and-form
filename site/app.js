@@ -1,8 +1,8 @@
 const REPO = "Nolane-x/Wheel-and-form";
 const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
-const RELEASE_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const RELEASE_DATA = "release.json";
 const LANG_KEY = "wheel-and-form-site-language";
-const SUPPORTED = ["en", "vi", "ja"];
+const SUPPORTED = ["en", "vi", "ja", "zh", "ko", "es", "fr", "de"];
 
 const I18N = {
   en: {
@@ -495,6 +495,8 @@ const I18N = {
   }
 };
 
+Object.assign(I18N, window.WF_I18N || {});
+
 function detectLanguage() {
   try {
     const fromUrl = new URLSearchParams(window.location.search).get("lang");
@@ -507,12 +509,17 @@ function detectLanguage() {
   const browser = (navigator.language || "en").toLowerCase();
   if (browser.startsWith("vi")) return "vi";
   if (browser.startsWith("ja")) return "ja";
+  if (browser.startsWith("zh")) return "zh";
+  if (browser.startsWith("ko")) return "ko";
+  if (browser.startsWith("es")) return "es";
+  if (browser.startsWith("fr")) return "fr";
+  if (browser.startsWith("de")) return "de";
   return "en";
 }
 
 function applyLanguage(lang) {
   if (!SUPPORTED.includes(lang)) lang = "en";
-  const dict = I18N[lang];
+  const dict = I18N[lang] || I18N.en;
   document.documentElement.lang = lang;
 
   for (const el of document.querySelectorAll("[data-i18n]")) {
@@ -532,9 +539,8 @@ function applyLanguage(lang) {
   const description = document.querySelector('meta[name="description"]');
   if (description) description.content = dict["meta.description"];
 
-  for (const btn of document.querySelectorAll(".lang-switch [data-lang]")) {
-    btn.setAttribute("aria-pressed", String(btn.dataset.lang === lang));
-  }
+  const select = document.getElementById("langSelect");
+  if (select) select.value = lang;
   for (const btn of document.querySelectorAll(".footer-links [data-lang]")) {
     if (btn.dataset.lang === lang) btn.setAttribute("aria-current", "true");
     else btn.removeAttribute("aria-current");
@@ -552,22 +558,23 @@ function wireLanguageButtons() {
   for (const btn of document.querySelectorAll("[data-lang]")) {
     btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
   }
+  const select = document.getElementById("langSelect");
+  if (select) {
+    select.addEventListener("change", () => applyLanguage(select.value));
+  }
 }
 
 async function loadLatestRelease() {
   try {
-    const response = await fetch(RELEASE_API, {
-      headers: { Accept: "application/vnd.github+json" }
-    });
-    if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+    const response = await fetch(RELEASE_DATA, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`release metadata ${response.status}`);
     const release = await response.json();
-    const tag = release.tag_name || "v0.2.3";
+    const tag = release.version || "v0.2.3";
     document.querySelectorAll("[data-version]").forEach((el) => { el.textContent = tag; });
 
-    const installer = (release.assets || []).find((asset) => /setup.*\.exe$/i.test(asset.name));
-    if (installer && installer.browser_download_url) {
+    if (release.download) {
       document.querySelectorAll("[data-download]").forEach((link) => {
-        link.href = installer.browser_download_url;
+        link.href = release.download;
       });
     }
   } catch (error) {
